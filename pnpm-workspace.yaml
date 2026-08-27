@@ -1,0 +1,8 @@
+allowBuilds:
+  sharp: false
+  unrs-resolver: false
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver
+# scriptShell (Git-bash) chỉ đặt cục bộ trên máy Windows có 360 Total Security —
+# KHÔNG commit đường dẫn Windows vì sẽ làm hỏng build trên Vercel/Linux.
