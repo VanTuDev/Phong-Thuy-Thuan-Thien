@@ -1,7 +1,7 @@
 import { apiFetch } from "./api.ts";
 import type { HandMetrics } from "./handMetrics.ts";
 
-export type { HandMetrics, FingerMetric, FingerGap } from "./handMetrics.ts";
+export type { HandMetrics, FingerMetric, FingerGap, FingerBend, HandPose } from "./handMetrics.ts";
 
 export type ReadingType = "chi-tay" | "not-ruoi";
 export type PackageId = ReadingType | "combo";
@@ -38,6 +38,38 @@ export interface PalmLine {
    */
   source?: "manual" | "cv" | "anchor" | "ai" | "template";
 }
+export type PalmLineId = "path-life" | "path-head" | "path-heart";
+
+/** Trắc nghiệm người dùng điền trước khi tải ảnh chỉ tay. */
+export interface PalmIntake {
+  name: string;
+  dob: string; // "YYYY-MM-DD"
+  gender: "nam" | "nu";
+  hand: "trai" | "phai";
+  handMoles: number[]; // số vùng (1..10) đã khai; [] = không có
+}
+
+export interface BaTrach {
+  kua: number;
+  gua: string;
+  trach: "Đông" | "Tây";
+  goodDirections: { name: string; dir: string }[];
+  badDirections: { name: string; dir: string }[];
+}
+
+export interface PalmMoleReading {
+  region: number;
+  name: string;
+  interpretation: string;
+}
+
+export interface PalmSubject {
+  name: string;
+  age: number;
+  gender: "nam" | "nu";
+  hand: "trai" | "phai";
+}
+
 export interface PalmResult {
   element: string;
   elementIcon: string;
@@ -45,9 +77,12 @@ export interface PalmResult {
   lines: PalmLine[];
   /** số đo ngón tay / hình bàn tay (từ MediaPipe, tất định) */
   hand?: HandMetrics;
+  /** Bát Trạch từ trắc nghiệm (backend tính) */
+  baTrach?: BaTrach | null;
+  /** luận giải nốt ruồi trên bàn tay theo vùng người dùng khai */
+  moleReadings?: PalmMoleReading[];
+  subject?: PalmSubject | null;
 }
-
-export type PalmLineId = "path-life" | "path-head" | "path-heart";
 
 export interface PalmLineObservation {
   id: PalmLineId;
@@ -66,6 +101,8 @@ export interface PalmObservation {
   handShape: string;
   dominantElementHint: string;
   lines: PalmLineObservation[];
+  declaredHand?: "trai" | "phai";
+  moles?: { region: number; seen: boolean; note: string }[];
 }
 export interface Mole {
   id: string;
@@ -89,6 +126,8 @@ export interface Reading {
   result: PalmResult | MoleResult | null;
   /** Lượt 1 của Gemini — quan sát khách quan (chỉ có ở chỉ tay). */
   observation?: PalmObservation | null;
+  /** Trắc nghiệm người dùng điền trước khi tải ảnh (chỉ tay). */
+  intake?: PalmIntake | null;
   createdAt: string;
 }
 
@@ -168,6 +207,8 @@ export interface PalmHint {
   userDrawn?: string[];
   /** số đo ngón tay / hình bàn tay */
   metrics?: HandMetrics;
+  /** trắc nghiệm người dùng điền trước khi tải ảnh */
+  intake?: PalmIntake;
 }
 
 export const readings = {
@@ -303,6 +344,7 @@ export interface AdminReadingLog {
   aiVerdict: string;
   summary: string;
   observation?: PalmObservation | null;
+  intake?: PalmIntake | null;
   createdAt: string;
 }
 

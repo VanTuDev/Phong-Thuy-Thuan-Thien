@@ -3,6 +3,9 @@
  * Trả về: ngón dài/ngắn nhất, độ hở giữa các ngón, hình bàn tay, nguyên tố…
  */
 import type { Pt } from "./handDetect.ts";
+import { computeHandPose, type HandPose } from "./handPose.ts";
+
+export type { FingerBend, HandPose } from "./handPose.ts";
 
 export type FingerId = "thumb" | "index" | "middle" | "ring" | "pinky";
 export type ElementVi = "Thổ" | "Khí" | "Hỏa" | "Thủy";
@@ -41,6 +44,8 @@ export interface HandMetrics {
   pinkyReach: "vượt khớp trên" | "tới khớp giữa" | "ngắn";
   lowSetPinky: boolean;
   thumbAngleDeg: number;
+  /** tư thế bàn tay: độ cong ngón, nghiêng, phối cảnh, khum */
+  pose: HandPose;
   /** câu mô tả khách quan (tiếng Việt) để hiển thị + đưa vào ngữ cảnh AI */
   notes: string[];
 }
@@ -176,6 +181,9 @@ export function computeHandMetrics(lm: Pt[]): HandMetrics {
   if (digitRatio > 1.03) notes.push("Ngón trỏ dài hơn ngón áp út.");
   else if (digitRatio < 0.97) notes.push("Ngón áp út dài hơn ngón trỏ.");
 
+  const pose = computeHandPose(lm);
+  notes.push(...pose.notes);
+
   return {
     fingers,
     longest,
@@ -191,6 +199,7 @@ export function computeHandMetrics(lm: Pt[]): HandMetrics {
     pinkyReach,
     lowSetPinky,
     thumbAngleDeg,
+    pose,
     notes,
   };
 }

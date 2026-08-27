@@ -151,6 +151,31 @@ export default function ReadingLogReview() {
               </div>
             </div>
 
+            {selected.intake && (
+              <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
+                <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                  <Icon name="assignment_ind" className="text-[16px] text-gold/70" />
+                  NGƯỜI XEM TỰ KHAI
+                </h4>
+                <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                  <ObsCell label="Họ tên" value={selected.intake.name} />
+                  <ObsCell label="Ngày sinh" value={selected.intake.dob} />
+                  <ObsCell
+                    label="Giới tính · tay"
+                    value={`${selected.intake.gender === "nam" ? "Nam" : "Nữ"} · ${
+                      selected.intake.hand === "trai" ? "trái" : "phải"
+                    }`}
+                  />
+                </div>
+                <p className="mt-2 font-body-md text-xs text-outline">
+                  Nốt ruồi khai:{" "}
+                  {selected.intake.handMoles.length
+                    ? `vùng ${selected.intake.handMoles.join(", ")}`
+                    : "không có"}
+                </p>
+              </div>
+            )}
+
             {selected.observation && (
               <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
                 <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">

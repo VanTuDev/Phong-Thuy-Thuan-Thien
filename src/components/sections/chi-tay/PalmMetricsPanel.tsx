@@ -97,6 +97,44 @@ export default function PalmMetricsPanel({
           </div>
         </div>
 
+        {/* Tư thế bàn tay */}
+        {metrics.pose && (
+          <div>
+            <p className="mb-1.5 font-data-mono text-[10px] uppercase tracking-wide text-outline">
+              Tư thế bàn tay
+            </p>
+            <div className="mb-2 flex flex-wrap gap-1.5">
+              {metrics.pose.fingerBends.map((b) => (
+                <span
+                  key={b.id}
+                  className={`rounded-full border px-2 py-0.5 font-data-mono text-[11px] ${
+                    b.state === "cong nhiều"
+                      ? "border-error/40 bg-error/10 text-error/90"
+                      : b.state === "hơi cong"
+                        ? "border-gold/30 bg-gold/10 text-gold/90"
+                        : "border-white/10 text-outline"
+                  }`}
+                >
+                  {b.label.replace("Ngón ", "")}: {b.state}
+                  {b.state !== "thẳng" && ` (~${Math.round(b.curveDeg)}°)`}
+                </span>
+              ))}
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <Field label="Nghiêng" value={`~${Math.round(metrics.pose.tiltDeg)}°`} />
+              <Field label="Phối cảnh" value={metrics.pose.roll} />
+              <Field label="Lòng bàn tay" value={metrics.pose.cupping} />
+            </div>
+            {metrics.pose.quality !== "tốt" && (
+              <p className="mt-1.5 flex items-start gap-1.5 font-body-md text-[11px] text-gold/80">
+                <Icon name="info" className="mt-0.5 text-[13px]" />
+                Ảnh chưa lý tưởng ({metrics.pose.quality}) — số đo có thể lệch, chụp lại bàn tay xoè
+                phẳng sẽ chính xác hơn.
+              </p>
+            )}
+          </div>
+        )}
+
         {/* Tóm tắt */}
         <div className="grid grid-cols-2 gap-2">
           <Field label="Hình bàn tay" value={`${metrics.palmShape} (${metrics.palmRatio})`} />

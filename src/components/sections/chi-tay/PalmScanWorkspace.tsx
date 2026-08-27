@@ -8,10 +8,15 @@ import EngineBadge from "@/components/ui/EngineBadge";
 import { ApiError } from "@/lib/api";
 import {
   readings,
+  type PalmIntake,
   type PalmObservation,
   type PalmResult,
   type Reading,
 } from "@/lib/endpoints";
+import PalmIntakeForm from "@/components/sections/chi-tay/PalmIntakeForm";
+import { handLabel } from "@/lib/palmRegions";
+import BaTrachPanel from "@/components/sections/chi-tay/BaTrachPanel";
+import HandMolePanel from "@/components/sections/chi-tay/HandMolePanel";
 import type { PreparedImage } from "@/lib/image";
 import {
   catmullRom,
@@ -65,6 +70,7 @@ const LINE_LABEL: Record<string, string> = {
 export default function PalmScanWorkspace() {
   const { isLoggedIn, wallet, setWallet, refreshWallet } = useSession();
   const [phase, setPhase] = useState<Phase>("empty");
+  const [intake, setIntake] = useState<PalmIntake | null>(null);
   const [image, setImage] = useState<PreparedImage | null>(null);
   const [reading, setReading] = useState<Reading | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -225,6 +231,7 @@ export default function PalmScanWorkspace() {
           metrics: detection.metrics,
         };
       }
+      if (intake) hint = { ...(hint ?? {}), intake };
       const res = await readings.palm(image.dataUrl, hint);
       setReading(res.reading);
       setWallet({ ...wallet, chiTay: res.remaining });
@@ -252,19 +259,40 @@ export default function PalmScanWorkspace() {
           {!isLoggedIn && <Gate kind="login" />}
           {isLoggedIn && !canScan && phase === "empty" && <Gate kind="credits" />}
 
-          {isLoggedIn && canScan && phase === "empty" && (
-            <ImageUploader
-              onReady={(img) => {
-                setImage(img);
-                setPhase("preview");
-                void runCheck(img);
-              }}
-              prepareOptions={{ maxEdge: 1024, quality: 0.82 }}
-              title="Tải ảnh Lòng bàn tay"
-              hint="Xoè rộng bàn tay, hướng lòng bàn tay thẳng vào máy ảnh · đủ sáng · thấy trọn 5 ngón và cổ tay"
-              icon="pan_tool"
-              className="flex-1 p-4"
-            />
+          {isLoggedIn && canScan && phase === "empty" && !intake && (
+            <PalmIntakeForm initial={intake} onComplete={(v) => setIntake(v)} />
+          )}
+
+          {isLoggedIn && canScan && phase === "empty" && intake && (
+            <div className="flex flex-1 flex-col p-4">
+              <div className="mb-3 flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-surface-container-lowest/60 px-3.5 py-2.5">
+                <span className="flex items-center gap-2 font-body-md text-sm text-on-surface-variant">
+                  <Icon name="person" className="text-[16px] text-gold/70" />
+                  {intake.name} · tay {handLabel(intake.hand)}
+                  {intake.handMoles.length > 0 && ` · nốt ruồi vùng ${intake.handMoles.join(", ")}`}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setIntake(null)}
+                  className="press flex items-center gap-1 rounded px-2 py-1 font-data-mono text-[11px] text-on-surface-variant hover:bg-white/5 hover:text-white"
+                >
+                  <Icon name="edit" className="text-[13px]" />
+                  Sửa
+                </button>
+              </div>
+              <ImageUploader
+                onReady={(img) => {
+                  setImage(img);
+                  setPhase("preview");
+                  void runCheck(img);
+                }}
+                prepareOptions={{ maxEdge: 1024, quality: 0.82 }}
+                title={`Tải ảnh lòng bàn tay ${handLabel(intake.hand)}`}
+                hint={`Chụp lòng bàn tay ${handLabel(intake.hand)}: xoè rộng 5 ngón, hướng thẳng vào máy ảnh · đủ sáng · thấy trọn bàn tay và cổ tay`}
+                icon="pan_tool"
+                className="flex-1"
+              />
+            </div>
           )}
 
           {image && phase !== "empty" && (
@@ -350,6 +378,14 @@ export default function PalmScanWorkspace() {
                     Bỏ qua bước dò cục bộ — AI sẽ tự kiểm tra
                   </span>
                 )}
+                {phase === "preview" && !editMode && detection?.metrics?.pose &&
+                  detection.metrics.pose.quality !== "tốt" && (
+                    <span className="flex items-start gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 font-data-mono text-[12px] text-gold/90">
+                      <Icon name="report" className="mt-px shrink-0 text-[14px]" />
+                      {detection.metrics.pose.issues.join(" · ") || "Tư thế bàn tay chưa lý tưởng"} —
+                      vẫn luận giải được, ảnh xoè phẳng sẽ chính xác hơn
+                    </span>
+                  )}
                 {phase === "preview" && editMode && (
                   <span className="flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 font-data-mono text-[12px] text-gold/90">
                     <Icon name="edit" className="text-[14px]" />
@@ -593,6 +629,14 @@ export default function PalmScanWorkspace() {
                   <p className="font-body-md text-sm text-on-surface-variant">{line.description}</p>
                 </div>
               ))}
+
+              {result.baTrach && (
+                <BaTrachPanel baTrach={result.baTrach} subject={result.subject ?? null} />
+              )}
+
+              {result.moleReadings && result.moleReadings.length > 0 && (
+                <HandMolePanel readings={result.moleReadings} observed={observation?.moles} />
+              )}
 
               {(result.hand ?? detection?.metrics) && (
                 <PalmMetricsPanel metrics={(result.hand ?? detection?.metrics)!} />
