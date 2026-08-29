@@ -13,7 +13,7 @@ export const PACKAGES: CreditPackage[] = [
   {
     id: "chi-tay",
     title: "Lượt xem Chỉ tay",
-    description: "Luận giải Sinh đạo, Trí đạo, Tâm đạo từ ảnh lòng bàn tay.",
+    description: "Luận giải Đường gia đình, Đường tình duyên, Đường công danh sự nghiệp từ ảnh lòng bàn tay.",
     unitLabel: "lượt",
     pricePerUnit: 30000,
     icon: "pan_tool",

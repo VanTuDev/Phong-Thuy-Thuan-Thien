@@ -7,9 +7,9 @@ import { ApiError, mediaUrl } from "@/lib/api";
 import { admin, type AdminReadingLog, type ReadingType } from "@/lib/endpoints";
 
 const LINE_LABEL: Record<string, string> = {
-  "path-life": "Sinh đạo",
-  "path-head": "Trí đạo",
-  "path-heart": "Tâm đạo",
+  "path-life": "Đường gia đình",
+  "path-head": "Đường tình duyên",
+  "path-heart": "Đường công danh sự nghiệp",
 };
 
 function ObsCell({ label, value }: { label: string; value: string }) {

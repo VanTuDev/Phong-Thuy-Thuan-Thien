@@ -35,6 +35,8 @@ interface SessionContextValue {
   /** Đăng nhập khách — dùng khi truy cập qua IP LAN không đăng nhập Google được */
   loginAsGuest: (name?: string) => Promise<void>;
   logout: () => void;
+  /** Cập nhật hồ sơ (tên / ảnh đại diện) rồi đồng bộ vào phiên hiện tại. */
+  updateProfile: (patch: { name?: string; avatar?: string }) => Promise<void>;
   refreshWallet: () => Promise<void>;
   /** Cập nhật ví tại chỗ sau khi mua / dùng lượt (tránh gọi lại API) */
   setWallet: (next: Wallet) => void;
@@ -120,6 +122,15 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const updateProfile = useCallback(
+    async (patch: { name?: string; avatar?: string }) => {
+      const res = await auth.updateProfile(patch);
+      setUser(res.user);
+      setWalletState(res.wallet);
+    },
+    [],
+  );
+
   const value = useMemo<SessionContextValue>(
     () => ({
       status,
@@ -133,6 +144,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       loginWithGoogle,
       loginAsGuest,
       logout,
+      updateProfile,
       refreshWallet,
       setWallet: setWalletState,
     }),
@@ -147,6 +159,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       loginWithGoogle,
       loginAsGuest,
       logout,
+      updateProfile,
       refreshWallet,
     ],
   );

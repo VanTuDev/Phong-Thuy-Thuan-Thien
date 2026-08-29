@@ -104,13 +104,13 @@ describe("handDetect · hình học", () => {
     }
   });
 
-  it("Tâm đạo cao hơn Trí đạo; Sinh đạo thấp nhất", () => {
+  it("đường trên (path-heart) cao hơn đường giữa (path-head); path-life thấp nhất", () => {
     const a = computeAnchors(openRightHand());
-    assert.ok(avgY(a["path-heart"]) < avgY(a["path-head"]), "tâm đạo (y nhỏ) cao hơn trí đạo");
-    assert.ok(avgY(a["path-head"]) < avgY(a["path-life"]), "trí đạo cao hơn phần cuối sinh đạo");
+    assert.ok(avgY(a["path-heart"]) < avgY(a["path-head"]), "đường trên (y nhỏ) cao hơn đường giữa");
+    assert.ok(avgY(a["path-head"]) < avgY(a["path-life"]), "đường giữa cao hơn phần cuối path-life");
   });
 
-  it("Sinh đạo vòng cung ôm về phía ngón cái (bụng đường lệch khỏi hai đầu)", () => {
+  it("path-life vòng cung ôm về phía ngón cái (bụng đường lệch khỏi hai đầu)", () => {
     const life = computeAnchors(openRightHand())["path-life"];
     const mid = life[Math.floor(life.length / 2)];
     // r hướng về ngón cái = phía x nhỏ ở bàn tay này → bụng đường có x nhỏ hơn hai đầu

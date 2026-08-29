@@ -26,7 +26,7 @@ trên nền gần đen `#0A0A0A`).
 | Route | Tính năng | Bản chất |
 |---|---|---|
 | `/` | Landing page | Giới thiệu thương hiệu, dẫn tới 3 tính năng dưới |
-| `/phan-tich-chi-tay` | Phân tích Chỉ tay | Upload ảnh lòng bàn tay → AI "quét" và luận giải 3 đường chỉ tay chính: **Sinh đạo** (sức sống), **Trí đạo** (trí tuệ), **Tâm đạo** (cảm xúc) |
+| `/phan-tich-chi-tay` | Phân tích Chỉ tay | Upload ảnh lòng bàn tay → AI "quét" 3 đường chỉ tay: **Đường gia đình** (đỏ, `path-life`), **Đường tình duyên** (xanh dương, `path-head`), **Đường công danh sự nghiệp** (vàng, `path-heart`), kèm số đo ngón tay/độ hở ngón và Bát Trạch |
 | `/phan-tich-not-ruoi` | Phân tích Nốt ruồi | Upload ảnh khuôn mặt → AI định vị các nốt ruồi và luận giải theo cung vị tướng số (tài lộc, sự nghiệp, tình duyên...) |
 | `/co-van` | Cố vấn AI (chatbot) | Trò chuyện tự do với "Modern Sage" — trả lời theo Bát Trạch (Quái số, Đông/Tây Tứ Trạch), Ngũ Hành, hướng nhà/hướng bàn làm việc |
 
@@ -50,10 +50,14 @@ sau — đây là tri thức nền, không phải thứ được bịa tự do:
   Trạch** hoặc **Tây Tứ Trạch**, từ đó suy ra các hướng tốt/xấu (Sinh Khí,
   Thiên Y, Diên Niên, Phục Vị = tốt; Họa Hại, Ngũ Quỷ, Lục Sát, Tuyệt Mệnh =
   xấu).
-- **Chỉ tay**: chỉ dùng 3 đường chính — Sinh đạo/Trí đạo/Tâm đạo — mỗi đường
-  gắn 1 màu cố định (đỏ `#FF5252`, xanh dương `#448AFF`, vàng `#FFC107`) dùng
-  đồng bộ giữa SVG vẽ đường (`PalmLines.tsx`) và bảng luận giải
-  (`lineDetails.ts`).
+- **Chỉ tay**: chỉ dùng **3 đường**, mỗi đường 1 màu cố định và 1 ý nghĩa:
+  - `path-life` — **đỏ `#FF5252`** — **Đường gia đình** (cội nguồn, quan hệ cha mẹ/anh em, gắn kết & hậu phương gia đạo).
+  - `path-head` — **xanh dương `#448AFF`** — **Đường tình duyên** (tình cảm, hôn nhân, cách yêu & chọn bạn đời).
+  - `path-heart` — **vàng `#FFC107`** — **Đường công danh sự nghiệp** (sự nghiệp, danh vọng, thăng tiến).
+  Id đường (`path-life/head/heart`) giữ nguyên vì đã lưu trong DB — chỉ đổi
+  `title`/`tag`/ý nghĩa. Màu + nhãn đồng bộ ở `lib/handDetect.ts`,
+  `PalmLineEditor.tsx`, prompt Gemini (`Backend/src/services/gemini.ts`) và dữ
+  liệu mẫu (`Backend/src/services/demoData.ts`). **Không có đường phụ nào khác.**
 - **Nốt ruồi**: luận theo **cung vị trên mặt** (tài bạch = tài lộc, cung sự
   nghiệp, cung tình duyên...), không luận theo hình dạng/màu sắc nốt ruồi.
 - Giọng luận giải: khẳng định nhưng không tuyệt đối hoá — ví dụ dòng disclaimer

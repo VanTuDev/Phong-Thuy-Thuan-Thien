@@ -2,8 +2,10 @@
  * Dò bàn tay client-side bằng MediaPipe Hands (21 điểm mốc).
  *
  * Dùng để: (1) xác nhận ảnh CÓ lòng bàn tay xoè rõ trước khi gọi API luận giải,
- * (2) neo 3 đường chỉ tay (Sinh/Trí/Tâm đạo) theo đúng tỉ lệ & góc xoay bàn tay
- * thật của từng người — thay cho đường mẫu cố định.
+ * (2) neo 3 đường chỉ tay chính theo đúng tỉ lệ & góc xoay bàn tay thật của từng
+ * người — thay cho đường mẫu cố định. 3 đường (id giữ nguyên vì đã lưu trong DB):
+ * path-life = Đường gia đình (đỏ), path-head = Đường tình duyên (xanh),
+ * path-heart = Đường công danh sự nghiệp (vàng).
  *
  * Model + WASM nằm ở /public/mediapipe (tải qua `pnpm setup:mediapipe`).
  * MediaPipe chỉ được import động (browser-only) — module này an toàn cho SSR/test.

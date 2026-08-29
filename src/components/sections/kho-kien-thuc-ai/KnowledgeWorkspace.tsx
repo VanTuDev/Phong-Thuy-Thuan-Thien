@@ -11,7 +11,7 @@ const TABS: { id: ReadingType; label: string; icon: string }[] = [
 ];
 
 const PLACEHOLDER: Record<ReadingType, string> = {
-  "chi-tay": "Nhập tri thức luận giải Chỉ tay (Sinh đạo, Trí đạo, Tâm đạo, nguyên tố bàn tay…) để bổ sung ngữ cảnh cho Gemini…",
+  "chi-tay": "Nhập tri thức luận giải Chỉ tay (Đường gia đình, Đường tình duyên, Đường công danh sự nghiệp, nguyên tố bàn tay…) để bổ sung ngữ cảnh cho Gemini…",
   "not-ruoi": "Nhập tri thức luận giải Nốt ruồi theo cung vị trên mặt (tài bạch, sự nghiệp, tình duyên…)…",
 };
 

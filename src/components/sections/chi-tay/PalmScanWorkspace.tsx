@@ -62,9 +62,9 @@ type Phase = "empty" | "preview" | "scanning" | "done" | "error";
 type ErrorKind = "not-palm" | "system";
 
 const LINE_LABEL: Record<string, string> = {
-  "path-life": "Sinh đạo",
-  "path-head": "Trí đạo",
-  "path-heart": "Tâm đạo",
+  "path-life": "Đường gia đình",
+  "path-head": "Đường tình duyên",
+  "path-heart": "Đường công danh sự nghiệp",
 };
 
 export default function PalmScanWorkspace() {
@@ -569,9 +569,9 @@ export default function PalmScanWorkspace() {
                 <ul className="space-y-3">
                   {[
                     { c: "#D4AF37", t: "Nguyên tố bàn tay", d: "Nước · Hỏa · Thổ · Khí" },
-                    { c: "#FF5252", t: "Sinh đạo", d: "Sức sống & thể trạng nền tảng" },
-                    { c: "#448AFF", t: "Trí đạo", d: "Tư duy & hướng sự nghiệp" },
-                    { c: "#FFC107", t: "Tâm đạo", d: "Cảm xúc & các mối quan hệ" },
+                    { c: "#FF5252", t: "Đường gia đình", d: "Cội nguồn & sự gắn kết gia đạo" },
+                    { c: "#448AFF", t: "Đường tình duyên", d: "Tình cảm, hôn nhân & bạn đời" },
+                    { c: "#FFC107", t: "Đường công danh sự nghiệp", d: "Sự nghiệp, danh vọng & thăng tiến" },
                   ].map((row) => (
                     <li key={row.t} className="flex items-start gap-3 rounded-lg border border-white/5 bg-surface-container-lowest/60 p-3.5">
                       <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: row.c, boxShadow: `0 0 8px ${row.c}66` }} />

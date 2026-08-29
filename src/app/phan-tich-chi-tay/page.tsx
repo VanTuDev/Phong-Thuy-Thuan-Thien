@@ -20,8 +20,8 @@ export default function PhanTichChiTayPage() {
             Phân tích Chỉ tay
           </h1>
           <p className="font-body-lg text-body-lg font-light text-on-surface-variant">
-            Tải lên ảnh lòng bàn tay rõ nét để AI lần theo những đường chỉ về Sinh đạo, Trí đạo và Tâm
-            đạo, cùng nguyên tố bàn tay của bạn.
+            Tải lên ảnh lòng bàn tay rõ nét để AI lần theo ba đường chỉ tay — Đường gia đình, Đường
+            tình duyên và Đường công danh sự nghiệp — cùng nguyên tố bàn tay của bạn.
           </p>
           <CreditBadge type="chi-tay" />
         </div>

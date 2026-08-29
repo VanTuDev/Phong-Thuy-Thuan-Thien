@@ -49,6 +49,8 @@ const nextConfig = {
       // LAN (mở bằng điện thoại cùng Wi-Fi)
       { protocol: "http", hostname: "192.168.*.*" },
       { protocol: "http", hostname: "10.*.*.*" },
+      // Ảnh đại diện người dùng tự nhập (URL bất kỳ, luôn https)
+      { protocol: "https", hostname: "**" },
       ...(apiPattern ? [apiPattern] : []),
     ],
   },

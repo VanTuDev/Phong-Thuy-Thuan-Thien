@@ -187,6 +187,9 @@ export const auth = {
       { body: { guest: true, demoUser: name ? { name } : undefined }, anon: true },
     ),
   me: () => apiFetch<{ user: SessionUser; wallet: Wallet }>("/auth/me"),
+  /** Cập nhật hồ sơ (tên hiển thị / ảnh đại diện). Gửi `avatar: ""` để xoá ảnh. */
+  updateProfile: (patch: { name?: string; avatar?: string }) =>
+    apiFetch<{ user: SessionUser; wallet: Wallet }>("/auth/me", { method: "PATCH", body: patch }),
   logout: () => apiFetch("/auth/logout", { method: "POST", body: {} }).catch(() => undefined),
 };
 

@@ -132,6 +132,7 @@ export default function SiteHeader({
                       <p className="truncate font-medium text-white">{user.name}</p>
                       <p className="truncate text-[13px] text-on-surface-variant">{user.email}</p>
                     </div>
+                    <MenuLink href="/ho-so" icon="person" label="Hồ sơ" />
                     <MenuLink href="/lich-su" icon="history" label="Lịch sử lượt xem" />
                     <MenuLink href="/nap-luot" icon="bolt" label="Mua thêm lượt xem" />
                     {user.isAdmin && (
@@ -216,6 +217,10 @@ export default function SiteHeader({
           <div className="mt-4 flex flex-col gap-2 border-t border-white/10 pt-4">
             {isLoggedIn && user ? (
               <>
+                <Link href="/ho-so" className="flex items-center gap-4 rounded-lg px-3 py-3 text-on-surface hover:bg-white/5">
+                  <Icon name="person" className="text-[20px]" />
+                  <span className="font-label-caps text-label-caps">Hồ sơ</span>
+                </Link>
                 <Link href="/lich-su" className="flex items-center gap-4 rounded-lg px-3 py-3 text-on-surface hover:bg-white/5">
                   <Icon name="history" className="text-[20px]" />
                   <span className="font-label-caps text-label-caps">Lịch sử lượt xem</span>
