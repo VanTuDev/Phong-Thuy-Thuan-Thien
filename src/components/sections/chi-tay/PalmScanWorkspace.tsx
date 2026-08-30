@@ -33,7 +33,8 @@ import PalmLineEditor, { PALM_LINE_COLOR } from "@/components/sections/chi-tay/P
 import PalmMetricsPanel from "@/components/sections/chi-tay/PalmMetricsPanel";
 import { useSession } from "@/components/session/SessionProvider";
 
-const EDIT_HANDLES = 7;
+/** Số điểm kéo trên mỗi đường khi chỉnh — ít điểm cho dễ căn chỉnh. */
+const EDIT_HANDLES = 4;
 const LINE_KEYS: PalmLineKey[] = ["path-life", "path-head", "path-heart"];
 
 /** Vị trí đường mặc định khi người dùng tự vẽ từ đầu (không có kết quả dò). */
