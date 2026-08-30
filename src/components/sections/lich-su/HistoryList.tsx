@@ -5,7 +5,7 @@ import Link from "next/link";
 import Icon from "@/components/ui/Icon";
 import EngineBadge from "@/components/ui/EngineBadge";
 import { mediaUrl } from "@/lib/api";
-import { readings, type PalmResult, type Reading } from "@/lib/endpoints";
+import { readings, type Reading } from "@/lib/endpoints";
 import { useSession } from "@/components/session/SessionProvider";
 
 function formatDateTime(iso: string) {
@@ -125,9 +125,6 @@ export default function HistoryList() {
               {entry.intake && (
                 <p className="mt-1 font-data-mono text-[11px] text-outline">
                   tay {entry.intake.hand === "trai" ? "trái" : "phải"}
-                  {(entry.result as PalmResult | null)?.baTrach
-                    ? ` · Quái số ${(entry.result as PalmResult).baTrach!.kua}`
-                    : ""}
                   {entry.intake.handMoleMode === "search"
                     ? " · nốt ruồi: AI tìm"
                     : entry.intake.handMoles.length

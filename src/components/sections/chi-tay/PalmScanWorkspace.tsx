@@ -15,7 +15,6 @@ import {
 } from "@/lib/endpoints";
 import PalmIntakeForm from "@/components/sections/chi-tay/PalmIntakeForm";
 import { handLabel } from "@/lib/palmRegions";
-import BaTrachPanel from "@/components/sections/chi-tay/BaTrachPanel";
 import HandMolePanel from "@/components/sections/chi-tay/HandMolePanel";
 import type { PreparedImage } from "@/lib/image";
 import {
@@ -676,10 +675,6 @@ export default function PalmScanWorkspace() {
                   <p className="font-body-md text-sm text-on-surface-variant">{line.description}</p>
                 </div>
               ))}
-
-              {result.baTrach && (
-                <BaTrachPanel baTrach={result.baTrach} subject={result.subject ?? null} />
-              )}
 
               {result.moleReadings && result.moleReadings.length > 0 && (
                 <HandMolePanel readings={result.moleReadings} observed={observation?.moles} />

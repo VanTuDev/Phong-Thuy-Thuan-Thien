@@ -59,14 +59,6 @@ export interface PalmIntake {
   handMoleMode?: MoleMode;
 }
 
-export interface BaTrach {
-  kua: number;
-  gua: string;
-  trach: "Đông" | "Tây";
-  goodDirections: { name: string; dir: string }[];
-  badDirections: { name: string; dir: string }[];
-}
-
 export interface PalmMoleReading {
   region: number;
   name: string;
@@ -87,8 +79,6 @@ export interface PalmResult {
   lines: PalmLine[];
   /** số đo ngón tay / hình bàn tay (từ MediaPipe, tất định) */
   hand?: HandMetrics;
-  /** Bát Trạch từ trắc nghiệm (backend tính) */
-  baTrach?: BaTrach | null;
   /** luận giải nốt ruồi trên bàn tay theo vùng người dùng khai */
   moleReadings?: PalmMoleReading[];
   subject?: PalmSubject | null;

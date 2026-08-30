@@ -19,8 +19,8 @@ export default function Hero() {
           Thấu hiểu vận mệnh qua lăng kính <span className="text-gold-sheen">công nghệ AI</span>
         </h1>
         <p className="max-w-lg font-body-lg text-body-lg text-on-surface-variant">
-          Tri thức phương Đông ngàn năm — Bát Trạch, Kinh Dịch, nhân tướng học — được
-          đọc lại bằng thị giác máy tính và mô hình ngôn ngữ. Bắt đầu từ một tấm ảnh.
+          Tri thức phương Đông ngàn năm — Ngũ Hành và nhân tướng học — được đọc lại
+          bằng thị giác máy tính và mô hình ngôn ngữ. Bắt đầu từ một tấm ảnh.
         </p>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link

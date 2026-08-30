@@ -70,8 +70,8 @@ export default function PalmIntakeForm({
       <header>
         <h3 className="font-headline-md text-[19px] text-white sm:text-headline-md">Trước khi bắt đầu</h3>
         <p className="mt-1 font-body-md text-xs text-on-surface-variant sm:text-sm">
-          Vài thông tin giúp Thuận Thiên luận giải sát với bạn hơn: tuổi, cung mệnh Bát Trạch và nốt
-          ruồi trên tay.
+          Vài thông tin giúp Thuận Thiên luận giải sát với bạn hơn: tuổi, giới tính và nốt ruồi
+          trên tay.
         </p>
       </header>
 

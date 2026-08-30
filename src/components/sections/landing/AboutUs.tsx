@@ -10,7 +10,7 @@ const PRINCIPLES = [
   {
     icon: "menu_book",
     title: "Trung thành với cổ học",
-    text: "Bát Trạch, Ngũ Hành, nhân tướng — giữ đúng quy tắc, không bịa thêm cho ly kỳ.",
+    text: "Ngũ Hành, nhân tướng học — giữ đúng quy tắc, không bịa thêm cho ly kỳ.",
   },
   {
     icon: "lock",
