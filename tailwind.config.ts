@@ -1,7 +1,7 @@
 import type { Config } from "tailwindcss";
 
 /**
- * Design tokens consolidated from the Zenith Qi / Modern Sage design system
+ * Design tokens consolidated from the Phong Thủy Thuận Thiên design system
  * (see ../Thuan-Thien-Phong-Thuy/DESIGN.md and zenith_qi_gold/DESIGN.md).
  * "gold" is the single accent color used across every screen; "on-surface"
  * carries the white body text; surfaces build the Tech-Zen Minimalism void.

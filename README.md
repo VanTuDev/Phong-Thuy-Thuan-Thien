@@ -1,4 +1,4 @@
-# Zenith Qi / Modern Sage — Frontend (Next.js)
+# Phong Thủy Thuận Thiên — Frontend (Next.js)
 
 > Muốn hiểu **câu chuyện sản phẩm** (thương hiệu, logic phong thủy, mock data
 > ở đâu, quy ước thêm dữ liệu mới) trước khi sửa/viết thêm code hoặc nội

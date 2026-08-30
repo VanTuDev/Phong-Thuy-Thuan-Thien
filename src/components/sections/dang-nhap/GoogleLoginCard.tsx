@@ -92,7 +92,7 @@ export default function GoogleLoginCard() {
         <div className="mb-6">
           <Bagua className="h-14 w-14 text-gold" spin={false} yinYang />
         </div>
-        <h1 className="font-headline-lg text-headline-lg text-white">Modern Sage</h1>
+        <h1 className="font-headline-lg text-headline-lg text-white">Phong Thủy Thuận Thiên</h1>
         <p className="mb-8 mt-2 font-body-md text-body-md text-on-surface-variant">
           Đăng nhập bằng Google để lưu lượt xem, lịch sử luận giải và tiếp tục hành trình thấu hiểu
           vận mệnh.

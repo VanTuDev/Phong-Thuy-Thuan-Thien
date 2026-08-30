@@ -1,4 +1,4 @@
-# Câu chuyện sản phẩm — Zenith Qi / Modern Sage
+# Câu chuyện sản phẩm — Phong Thủy Thuận Thiên
 
 > Tài liệu này viết cho **AI** (và người) làm việc tiếp trên codebase này.
 > `README.md` giải thích *cách chạy và cấu trúc kỹ thuật*; file này giải thích
@@ -9,7 +9,7 @@
 
 ## 1. Sản phẩm là gì
 
-**Zenith Qi** (tên hiển thị trong app: **Modern Sage**) là một ứng dụng web
+**Phong Thủy Thuận Thiên** (tên hiển thị trong app: **Thuận Thiên**) là một ứng dụng web
 tư vấn **phong thủy & nhân tướng học** ứng dụng **AI**. Định vị thương hiệu:
 *"Thấu hiểu vận mệnh qua lăng kính công nghệ AI"* — lấy tri thức phương Đông
 cổ xưa (Bát Trạch, Ngũ Hành, Kinh Dịch, nhân tướng học) làm **nội dung**, và
@@ -28,7 +28,7 @@ trên nền gần đen `#0A0A0A`).
 | `/` | Landing page | Giới thiệu thương hiệu, dẫn tới 3 tính năng dưới |
 | `/phan-tich-chi-tay` | Phân tích Chỉ tay | Upload ảnh lòng bàn tay → AI "quét" 3 đường chỉ tay: **Đường gia đình** (đỏ, `path-life`), **Đường tình duyên** (xanh dương, `path-head`), **Đường công danh sự nghiệp** (vàng, `path-heart`), kèm số đo ngón tay/độ hở ngón và Bát Trạch |
 | `/phan-tich-not-ruoi` | Phân tích Nốt ruồi (MẶT) | Upload ảnh khuôn mặt → người xem chấm các ô có nốt ruồi trên **sơ đồ 78 vị trí** (`/DataNotRuoi/AnhNotRuoiTrenMat.png`), hoặc chọn "để AI tìm" / "không có" → AI luận theo cung vị tướng số. Nốt ruồi trên **TAY** khai ở sơ đồ 50 ô trong trắc nghiệm của trang Chỉ tay. |
-| `/co-van` | Cố vấn AI (chatbot) | Trò chuyện tự do với "Modern Sage" — trả lời theo Bát Trạch (Quái số, Đông/Tây Tứ Trạch), Ngũ Hành, hướng nhà/hướng bàn làm việc |
+| `/co-van` | Cố vấn AI (chatbot) | Trò chuyện tự do với "Thuận Thiên" — trả lời theo Bát Trạch (Quái số, Đông/Tây Tứ Trạch), Ngũ Hành, hướng nhà/hướng bàn làm việc |
 
 Và khu vực **admin** (nội bộ, không phải khách hàng dùng):
 
@@ -77,7 +77,7 @@ mới, có thể tái dùng hoặc thêm nhân vật cùng "vibe" (tên người
 email cá nhân, không phải tên doanh nghiệp):
 
 - **"Người Tìm Kiếm"** (`ChatSideNav.tsx`) — danh xưng mặc định cho user
-  đang chat với Modern Sage, cố tình ẩn danh/phiếm chỉ (không phải tên riêng).
+  đang chat với Thuận Thiên, cố tình ẩn danh/phiếm chỉ (không phải tên riêng).
 - **Khách hàng ẩn danh trong `/co-van`** (`chatData.ts`) — Quái số 4, đang
   thiết kế lại văn phòng tại nhà, muốn tăng tập trung + thăng tiến sự nghiệp.
   Đây là kịch bản demo mẫu cho hội thoại tư vấn hướng bàn làm việc.

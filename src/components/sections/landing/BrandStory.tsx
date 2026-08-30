@@ -13,7 +13,7 @@ export default function BrandStory() {
             Nơi hiền triết cổ xưa gặp trí tuệ nhân tạo
           </h2>
           <p className="mb-4 font-body-lg text-body-lg leading-relaxed text-on-surface-variant">
-            Zenith Qi ra đời từ khát vọng kết nối giá trị ngàn năm của triết học phương Đông với sức
+            Phong Thủy Thuận Thiên ra đời từ khát vọng kết nối giá trị ngàn năm của triết học phương Đông với sức
             mạnh của AI hiện đại. Vũ trụ vận hành theo những quy luật ẩn giấu — và công nghệ là chiếc
             chìa khóa để giải mã.
           </p>

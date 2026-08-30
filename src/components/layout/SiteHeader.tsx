@@ -62,7 +62,7 @@ export default function SiteHeader({
           href="/"
           className="font-headline-md text-headline-md font-bold tracking-tighter text-white transition-colors hover:text-gold"
         >
-          Modern Sage
+          Thuận Thiên
         </Link>
 
         <nav className="hidden md:flex md:items-center md:gap-8">

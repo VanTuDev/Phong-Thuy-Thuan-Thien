@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Icon from "@/components/ui/Icon";
 import MolePicker, { type MolePickValue } from "@/components/ui/MolePicker";
 import { handLabel, moleHand, HAND_CHART_IMG, HAND_MOLE_ZONES } from "@/lib/palmRegions";
@@ -9,11 +9,26 @@ import type { PalmIntake } from "@/lib/endpoints";
 const FIELD =
   "w-full rounded-lg border border-white/15 bg-surface-container-lowest/70 px-3.5 py-2.5 font-body-md text-sm text-on-surface outline-none transition-colors focus:border-gold/60 sm:text-body-md";
 
-function isoDaysAgo(years: number): string {
-  const d = new Date();
-  d.setFullYear(d.getFullYear() - years);
-  return d.toISOString().slice(0, 10);
+const MIN_AGE = 5;
+const MAX_AGE = 120;
+
+/** Ghép ngày/tháng/năm rời thành "YYYY-MM-DD"; trả "" nếu không hợp lệ (lịch sai hoặc tuổi ngoài 5–120). */
+function composeDob(day: string, month: string, year: string): string {
+  const d = Number(day);
+  const m = Number(month);
+  const y = Number(year);
+  if (!Number.isInteger(d) || !Number.isInteger(m) || !Number.isInteger(y)) return "";
+  if (m < 1 || m > 12 || d < 1 || d > 31 || year.length !== 4) return "";
+  const dt = new Date(y, m - 1, d);
+  if (dt.getFullYear() !== y || dt.getMonth() !== m - 1 || dt.getDate() !== d) return "";
+  const now = new Date();
+  let age = now.getFullYear() - y;
+  if (now.getMonth() < m - 1 || (now.getMonth() === m - 1 && now.getDate() < d)) age -= 1;
+  if (age < MIN_AGE || age > MAX_AGE) return "";
+  return `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
+
+const onlyDigits = (v: string, max: number) => v.replace(/\D/g, "").slice(0, max);
 
 export default function PalmIntakeForm({
   initial,
@@ -23,7 +38,10 @@ export default function PalmIntakeForm({
   onComplete: (intake: PalmIntake) => void;
 }) {
   const [name, setName] = useState(initial?.name ?? "");
-  const [dob, setDob] = useState(initial?.dob ?? "");
+  const [initY, initM, initD] = (initial?.dob ?? "").split("-");
+  const [day, setDay] = useState(initD ? String(Number(initD)) : "");
+  const [month, setMonth] = useState(initM ? String(Number(initM)) : "");
+  const [year, setYear] = useState(initY ?? "");
   const [gender, setGender] = useState<"nam" | "nu" | null>(initial?.gender ?? null);
   const [mole, setMole] = useState<MolePickValue>({
     mode: initial?.handMoleMode ?? (initial?.handMoles?.length ? "declared" : "none"),
@@ -31,11 +49,9 @@ export default function PalmIntakeForm({
   });
 
   const hand = gender ? moleHand(gender) : null;
-  const dobValid = /^\d{4}-\d{2}-\d{2}$/.test(dob);
-  const canSubmit = name.trim().length > 0 && dobValid && !!gender;
-
-  const maxDob = useMemo(() => isoDaysAgo(5), []);
-  const minDob = useMemo(() => isoDaysAgo(120), []);
+  const dob = composeDob(day, month, year);
+  const dobTouched = day !== "" || month !== "" || year !== "";
+  const canSubmit = name.trim().length > 0 && dob !== "" && !!gender;
 
   const submit = () => {
     if (!canSubmit || !gender) return;
@@ -54,7 +70,7 @@ export default function PalmIntakeForm({
       <header>
         <h3 className="font-headline-md text-[19px] text-white sm:text-headline-md">Trước khi bắt đầu</h3>
         <p className="mt-1 font-body-md text-xs text-on-surface-variant sm:text-sm">
-          Vài thông tin giúp Modern Sage luận giải sát với bạn hơn: tuổi, cung mệnh Bát Trạch và nốt
+          Vài thông tin giúp Thuận Thiên luận giải sát với bạn hơn: tuổi, cung mệnh Bát Trạch và nốt
           ruồi trên tay.
         </p>
       </header>
@@ -74,20 +90,43 @@ export default function PalmIntakeForm({
         />
       </label>
 
-      {/* Ngày sinh */}
-      <label className="block">
+      {/* Ngày sinh — nhập số cho nhanh, không dùng lịch bật lên */}
+      <div>
         <span className="mb-1.5 block font-label-caps text-[11px] text-on-surface-variant sm:text-label-caps">
           Ngày tháng năm sinh
         </span>
-        <input
-          type="date"
-          className={`${FIELD} [color-scheme:dark]`}
-          value={dob}
-          min={minDob}
-          max={maxDob}
-          onChange={(e) => setDob(e.target.value)}
-        />
-      </label>
+        <div className="grid grid-cols-3 gap-2">
+          <input
+            className={`${FIELD} text-center`}
+            value={day}
+            onChange={(e) => setDay(onlyDigits(e.target.value, 2))}
+            inputMode="numeric"
+            placeholder="Ngày"
+            aria-label="Ngày sinh"
+          />
+          <input
+            className={`${FIELD} text-center`}
+            value={month}
+            onChange={(e) => setMonth(onlyDigits(e.target.value, 2))}
+            inputMode="numeric"
+            placeholder="Tháng"
+            aria-label="Tháng sinh"
+          />
+          <input
+            className={`${FIELD} text-center`}
+            value={year}
+            onChange={(e) => setYear(onlyDigits(e.target.value, 4))}
+            inputMode="numeric"
+            placeholder="Năm"
+            aria-label="Năm sinh"
+          />
+        </div>
+        {dobTouched && dob === "" && (
+          <p className="mt-1.5 font-body-md text-[11px] text-error/90">
+            Ngày sinh chưa hợp lệ (tuổi từ {MIN_AGE}–{MAX_AGE}). Ví dụ: 15 · 8 · 1995.
+          </p>
+        )}
+      </div>
 
       {/* Giới tính */}
       <div>

@@ -28,7 +28,7 @@ export default function AboutUs() {
           Công cụ để hiểu mình, không phải để sợ hãi
         </h2>
         <p className="mx-auto mt-4 max-w-3xl font-body-lg text-body-lg leading-relaxed text-on-surface-variant">
-          Zenith Qi phát triển các công cụ phân tích tiên tiến, không chỉ cung cấp thông tin mà còn
+          Phong Thủy Thuận Thiên phát triển các công cụ phân tích tiên tiến, không chỉ cung cấp thông tin mà còn
           truyền cảm hứng — giúp bạn định hướng cuộc sống và khai phá tiềm năng của chính mình.
         </p>
       </Reveal>

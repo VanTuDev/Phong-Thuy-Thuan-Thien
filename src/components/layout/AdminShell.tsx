@@ -51,7 +51,7 @@ export default function AdminShell({
           <Icon name="spa" className="text-gold" />
         </div>
         <div>
-          <h1 className="font-headline-md text-headline-md text-white">Zenith Qi</h1>
+          <h1 className="font-headline-md text-headline-md text-white">Thuận Thiên</h1>
           <p className="font-label-caps text-label-caps text-on-surface-variant opacity-70">Quản trị hệ thống</p>
         </div>
       </div>

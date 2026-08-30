@@ -40,7 +40,7 @@ export default function FinanceAdmin() {
     <>
       <header className="mb-10 pt-8 md:pt-0">
         <p className="mb-2 font-label-caps text-label-caps text-on-surface-variant opacity-60">
-          QUẢN TRỊ HỆ THỐNG / ZENITH QI
+          QUẢN TRỊ HỆ THỐNG / PHONG THỦY THUẬN THIÊN
         </p>
         <h2 className="font-display-lg text-headline-lg-mobile text-white md:text-display-lg">Quản lý Tài chính</h2>
       </header>

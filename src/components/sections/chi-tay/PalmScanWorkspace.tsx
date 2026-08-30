@@ -552,7 +552,7 @@ export default function PalmScanWorkspace() {
                   className={`mb-4 text-4xl ${errorKind === "not-palm" ? "text-gold/70" : "text-error"}`}
                 />
                 <h4 className="font-headline-md text-headline-md text-white">
-                  {errorKind === "not-palm" ? "Chưa nhận ra lòng bàn tay" : "Luận giải chưa hoàn tất"}
+                  {errorKind === "not-palm" ? "Bàn tay cần được chụp rõ hơn" : "Luận giải chưa hoàn tất"}
                 </h4>
                 <p className="mt-2 font-body-md text-body-md text-on-surface-variant">{error}</p>
                 {errorKind === "not-palm" && (
@@ -792,7 +792,7 @@ function Gate({ kind }: { kind: "login" | "credits" }) {
         <p className="mx-auto mt-2 max-w-sm font-body-md text-body-md text-on-surface-variant">
           {kind === "login"
             ? "Đăng nhập bằng Google và nạp lượt xem để AI luận giải lòng bàn tay của bạn."
-            : "Nạp thêm lượt để tiếp tục luận giải cùng Modern Sage."}
+            : "Nạp thêm lượt để tiếp tục luận giải cùng Thuận Thiên."}
         </p>
       </div>
       <Link

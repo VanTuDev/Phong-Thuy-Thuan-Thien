@@ -17,7 +17,7 @@ type Phase = "empty" | "preview" | "scanning" | "done" | "error";
 const DEFAULT_MOLE: MolePickValue = { mode: "search", positions: [] };
 
 export default function MoleScanWorkspace() {
-  const { isLoggedIn, wallet, setWallet } = useSession();
+  const { isLoggedIn, wallet, setWallet, refreshWallet } = useSession();
   const [phase, setPhase] = useState<Phase>("empty");
   const [image, setImage] = useState<PreparedImage | null>(null);
   const [reading, setReading] = useState<Reading | null>(null);
@@ -47,6 +47,7 @@ export default function MoleScanWorkspace() {
       setWallet({ ...wallet, notRuoi: res.remaining });
       setPhase("done");
     } catch (err) {
+      void refreshWallet(); // BE hoàn lượt khi luận giải thất bại
       setError(err instanceof ApiError ? err.message : "Không thể luận giải. Vui lòng thử lại.");
       setPhase("error");
     }

@@ -27,11 +27,11 @@ const jetbrainsMono = JetBrains_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Zenith Qi | Modern Sage - AI Phong Thủy",
-    template: "%s | Zenith Qi",
+    default: "Phong Thủy Thuận Thiên — AI luận giải nhân tướng, Đà Nẵng",
+    template: "%s | Phong Thủy Thuận Thiên",
   },
   description:
-    "Thấu hiểu vận mệnh qua lăng kính công nghệ AI. Phân tích Ngũ Hành, chỉ tay, nốt ruồi và trò chuyện cùng trợ lý phong thủy Modern Sage.",
+    "Thấu hiểu vận mệnh qua lăng kính công nghệ AI. Phân tích Ngũ Hành, chỉ tay, nốt ruồi và trò chuyện cùng trợ lý phong thủy Thuận Thiên. Đà Nẵng.",
 };
 
 export const viewport: Viewport = {

@@ -43,7 +43,7 @@ export default function ReadingLogReview() {
     <>
       <header className="mb-10 pt-8 md:pt-0">
         <p className="mb-2 font-label-caps text-label-caps text-on-surface-variant opacity-60">
-          QUẢN TRỊ HỆ THỐNG / ZENITH QI
+          QUẢN TRỊ HỆ THỐNG / PHONG THỦY THUẬN THIÊN
         </p>
         <h2 className="mb-3 font-display-lg text-headline-lg-mobile text-white md:text-display-lg">Lượt phán AI</h2>
         <p className="max-w-2xl font-body-md text-body-md text-on-surface-variant">

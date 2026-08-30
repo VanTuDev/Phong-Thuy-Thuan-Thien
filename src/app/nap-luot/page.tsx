@@ -17,7 +17,7 @@ export default function NapLuotPage() {
             Nạp lượt xem
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant font-light">
-            Chọn gói lượt xem, quét mã để thanh toán và bắt đầu luận giải cùng Modern Sage.
+            Chọn gói lượt xem, quét mã để thanh toán và bắt đầu luận giải cùng Thuận Thiên.
           </p>
         </div>
         <BuyCreditsWorkspace />

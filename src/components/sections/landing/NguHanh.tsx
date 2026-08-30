@@ -35,7 +35,7 @@ export default function NguHanh() {
         </h2>
         <p className="mx-auto mt-4 max-w-xl font-body-lg text-body-lg text-on-surface-variant">
           Mộc sinh Hỏa · Hỏa sinh Thổ · Thổ sinh Kim · Kim sinh Thủy · Thủy sinh Mộc.
-          Mọi luận giải của Modern Sage đều đặt trên nền quy luật này.
+          Mọi luận giải của Thuận Thiên đều đặt trên nền quy luật này.
         </p>
       </Reveal>
 

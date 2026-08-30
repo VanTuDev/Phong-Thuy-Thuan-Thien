@@ -209,7 +209,7 @@ function ThreadSidebar({
     <>
       <div className="mb-6">
         <h1 className="font-headline-md text-headline-md text-gold">Cố vấn</h1>
-        <p className="mt-1 text-sm text-on-surface-variant">Modern Sage AI</p>
+        <p className="mt-1 text-sm text-on-surface-variant">Cố vấn Thuận Thiên</p>
       </div>
       <button
         type="button"

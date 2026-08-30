@@ -37,21 +37,22 @@ export default function SiteFooter() {
           <div>
             <div className="mb-4 flex items-center gap-3">
               <Bagua className="h-10 w-10 text-gold" spin={false} />
-              <span className="font-headline-md text-headline-md font-bold text-white">Modern Sage</span>
+              <span className="font-headline-md text-headline-md font-bold text-white">Phong Thủy Thuận Thiên</span>
             </div>
             <p className="max-w-xs font-body-md text-sm text-on-surface-variant">
               Thấu hiểu vận mệnh qua lăng kính công nghệ AI. Trí tuệ AI là người dẫn đường, không phải
               định mệnh tuyệt đối.
             </p>
             <div className="mt-5 flex gap-3 text-gold">
-              <a className="rounded-full border border-white/10 p-2 transition-colors hover:border-gold/50 hover:text-white" href="mailto:hello@zenithqi.vn" aria-label="Email">
+              <a className="rounded-full border border-white/10 p-2 transition-colors hover:border-gold/50 hover:text-white" href="mailto:lienhe@phongthuythuanthien.vn" aria-label="Email">
                 <Icon name="mail" className="text-[18px]" />
               </a>
               <a className="rounded-full border border-white/10 p-2 transition-colors hover:border-gold/50 hover:text-white" href="tel:+84" aria-label="Điện thoại">
                 <Icon name="phone" className="text-[18px]" />
               </a>
-              <span className="rounded-full border border-white/10 p-2" aria-hidden>
-                <Icon name="location_on" className="text-[18px]" />
+              <span className="flex items-center gap-1.5 rounded-full border border-white/10 px-3 py-2 font-body-md text-xs text-on-surface-variant" aria-hidden>
+                <Icon name="location_on" className="text-[16px]" />
+                Đà Nẵng
               </span>
             </div>
           </div>
@@ -77,7 +78,7 @@ export default function SiteFooter() {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-6 sm:flex-row">
           <p className="font-body-md text-xs text-on-surface-variant opacity-70">
-            © {new Date().getFullYear()} Modern Sage. Mọi con đường đều hướng tới sự cân bằng.
+            © {new Date().getFullYear()} Phong Thủy Thuận Thiên · Đà Nẵng. Mọi con đường đều hướng tới sự cân bằng.
           </p>
           <div className="flex gap-5 font-body-md text-xs text-on-surface-variant">
             <a href="#" className="transition-colors hover:text-white">Triết lý</a>
