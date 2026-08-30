@@ -60,7 +60,9 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="bg-background text-on-surface font-sans antialiased">
+      {/* suppressHydrationWarning: các tiện ích trình duyệt (Grammarly…) chèn
+          data-* vào <body> trước khi React hydrate → cảnh báo giả. */}
+      <body className="bg-background text-on-surface font-sans antialiased" suppressHydrationWarning>
         <SessionProvider>{children}</SessionProvider>
       </body>
     </html>
