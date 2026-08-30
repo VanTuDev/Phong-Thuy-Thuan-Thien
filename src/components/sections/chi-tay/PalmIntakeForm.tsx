@@ -44,7 +44,8 @@ export default function PalmIntakeForm({
   const [year, setYear] = useState(initY ?? "");
   const [gender, setGender] = useState<"nam" | "nu" | null>(initial?.gender ?? null);
   const [mole, setMole] = useState<MolePickValue>({
-    mode: initial?.handMoleMode ?? (initial?.handMoles?.length ? "declared" : "none"),
+    // Mặc định: để AI tự tìm nốt ruồi trên ảnh — không bắt người dùng chấm thủ công.
+    mode: initial?.handMoleMode ?? (initial?.handMoles?.length ? "declared" : "search"),
     positions: initial?.handMoles ?? [],
   });
 

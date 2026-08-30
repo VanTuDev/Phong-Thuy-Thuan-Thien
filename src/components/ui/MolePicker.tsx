@@ -21,8 +21,8 @@ interface Props {
 }
 
 const MODES: { id: MoleMode; label: string; icon: string; hint: string }[] = [
-  { id: "declared", label: "Tôi biết vị trí", icon: "touch_app", hint: "Chấm số ô có nốt ruồi trên sơ đồ" },
-  { id: "search", label: "Không rõ — để AI tìm", icon: "search", hint: "AI tự quét ảnh tìm nốt ruồi" },
+  { id: "search", label: "Để AI tự tìm", icon: "auto_awesome", hint: "AI quét ảnh, tự xác định vị trí nốt ruồi" },
+  { id: "declared", label: "Tôi tự chấm vị trí", icon: "touch_app", hint: "Chấm số ô có nốt ruồi trên sơ đồ" },
   { id: "none", label: "Không có nốt ruồi", icon: "block", hint: "Bỏ qua phần nốt ruồi" },
 ];
 
