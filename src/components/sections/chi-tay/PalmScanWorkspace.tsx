@@ -290,8 +290,9 @@ export default function PalmScanWorkspace() {
       setReading(res.reading);
       setWallet({ ...wallet, chiTay: res.remaining });
       setPhase("done");
-      // Gemini đã dò thô → bám nếp gấp THẬT trên ảnh (xử lý ảnh phía trình duyệt).
-      void refineAiLines(res.reading).then((rd) => setReading(rd));
+      // Chế độ thủ công: Gemini dò thô → bám nếp gấp THẬT trên ảnh (xử lý phía trình duyệt).
+      // Chế độ AI đọc sâu: không vẽ đường lên ảnh nên bỏ qua bước này.
+      if (readMode === "manual") void refineAiLines(res.reading).then((rd) => setReading(rd));
     } catch (err) {
       void refreshWallet(); // BE hoàn lượt khi thất bại
       if (err instanceof ApiError && err.status === 422) {
@@ -403,11 +404,14 @@ export default function PalmScanWorkspace() {
                     onRedrawAppend={appendRedrawPoint}
                   />
                 )}
-                {phase === "preview" && !editMode && detection?.ok && (
+                {/* Chế độ AI đọc sâu: KHÔNG vẽ đường màu lên ảnh (dễ hiểu lầm là nếp gấp thật) */}
+                {phase === "preview" && !editMode && detection?.ok && readMode === "manual" && (
                   <HandPreviewOverlay detection={detection} />
                 )}
 
-                {phase === "done" && result && <PalmLinesOverlay lines={result.lines} />}
+                {phase === "done" && result && !result.aiDeep && (
+                  <PalmLinesOverlay lines={result.lines} />
+                )}
               </div>
 
               {/* Chọn chế độ luận giải */}
@@ -461,19 +465,21 @@ export default function PalmScanWorkspace() {
                 {phase === "done" && (
                   <span className="flex items-center gap-2 rounded-full border border-white/10 bg-surface-container/80 px-4 py-2 font-data-mono text-data-mono text-on-surface backdrop-blur-md motion-safe:animate-fade-in-up">
                     <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
-                    {result?.lines.some((l) => l.source === "manual")
-                      ? "Luận giải theo đường bạn tự đồ"
-                      : result?.lines.some((l) => l.source === "cv")
-                        ? "Đã bám theo nếp gấp thật trên ảnh"
-                        : result?.lines.some((l) => l.source === "anchor")
-                          ? "Đã định vị đường chỉ theo bàn tay của bạn"
-                          : result?.lines.some((l) => l.source === "ai")
-                            ? "AI đã dò được đường chỉ tay"
-                            : "Phân tích hoàn tất"}
+                    {result?.aiDeep
+                      ? "AI đã đọc kỹ ảnh & luận giải"
+                      : result?.lines.some((l) => l.source === "manual")
+                        ? "Luận giải theo đường bạn tự đồ"
+                        : result?.lines.some((l) => l.source === "cv")
+                          ? "Đã bám theo nếp gấp thật trên ảnh"
+                          : result?.lines.some((l) => l.source === "anchor")
+                            ? "Đã định vị đường chỉ theo bàn tay của bạn"
+                            : result?.lines.some((l) => l.source === "ai")
+                              ? "AI đã dò được đường chỉ tay"
+                              : "Phân tích hoàn tất"}
                   </span>
                 )}
 
-                {phase === "preview" && !editMode && detection?.ok && (
+                {phase === "preview" && !editMode && detection?.ok && readMode === "manual" && (
                   <span className="flex items-center gap-2 rounded-full border border-wood/30 bg-wood/10 px-3 py-1.5 font-data-mono text-[12px] text-wood motion-safe:animate-fade-in">
                     <Icon name="check_circle" className="text-[14px]" />
                     {detection.traced && Object.values(detection.traced).some(Boolean)
@@ -759,7 +765,7 @@ export default function PalmScanWorkspace() {
                       <h3 className="font-headline-md text-[20px] text-on-surface">{line.title}</h3>
                     </div>
                     <div className="flex items-center gap-2">
-                      <SourceBadge source={line.source} />
+                      {!result.aiDeep && <SourceBadge source={line.source} />}
                       <span className="font-data-mono text-[12px] text-outline">{line.tag}</span>
                     </div>
                   </div>
@@ -819,7 +825,9 @@ export default function PalmScanWorkspace() {
                   className="press flex w-full items-center justify-center gap-2 rounded-lg border border-white/10 bg-surface-container-lowest/60 py-3 font-body-md text-sm text-on-surface-variant hover:border-white/25 hover:text-white"
                 >
                   <Icon name="edit" className="text-[15px]" />
-                  Đường chưa đúng? Chỉnh lại rồi luận giải lại (trừ 1 lượt)
+                  {result.aiDeep
+                    ? "Muốn tự vẽ đường chỉ tay? Chuyển sang chế độ thủ công (trừ 1 lượt)"
+                    : "Đường chưa đúng? Chỉnh lại rồi luận giải lại (trừ 1 lượt)"}
                 </button>
               )}
             </div>
