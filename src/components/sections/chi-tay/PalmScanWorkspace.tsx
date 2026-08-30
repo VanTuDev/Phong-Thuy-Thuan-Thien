@@ -81,6 +81,9 @@ export default function PalmScanWorkspace() {
   const [detection, setDetection] = useState<PalmDetection | null>(null);
   const [detectorDown, setDetectorDown] = useState(false);
 
+  // Chế độ luận giải: "manual" = tự chỉnh đường · "ai" = AI đọc sâu, không chỉnh
+  const [readMode, setReadMode] = useState<"manual" | "ai">("manual");
+
   // Chỉnh / đồ lại đường chỉ tay
   const [editMode, setEditMode] = useState(false);
   const [manualMode, setManualMode] = useState(false);
@@ -91,7 +94,8 @@ export default function PalmScanWorkspace() {
   const canScan = isLoggedIn && wallet.chiTay > 0;
   const result = reading?.result as PalmResult | undefined;
   const observation = reading?.observation ?? null;
-  const canProceed = detection?.ok || detectorDown || manualMode;
+  // AI đọc sâu: Gemini tự xác thực ảnh → không cần MediaPipe nhận diện xong mới cho chạy.
+  const canProceed = readMode === "ai" || detection?.ok || detectorDown || manualMode;
 
   // Khởi tạo bản nháp đường khi có kết quả dò (hoặc khi vào chế độ tự vẽ)
   useEffect(() => {
@@ -132,6 +136,7 @@ export default function PalmScanWorkspace() {
   };
 
   const startManual = () => {
+    setReadMode("manual");
     setManualMode(true);
     setWorkLines(null); // effect sẽ nạp lại MANUAL_START
     setEditedIds(new Set());
@@ -247,7 +252,14 @@ export default function PalmScanWorkspace() {
     setError(null);
     try {
       let hint: Parameters<typeof readings.palm>[1];
-      if (workLines) {
+      if (readMode === "ai") {
+        // AI đọc sâu: chỉ đưa điểm mốc + số đo, KHÔNG gửi đường tự chỉnh — để Gemini tự dò.
+        hint = {
+          landmarks: detection?.landmarks,
+          metrics: detection?.metrics,
+          mode: "ai",
+        };
+      } else if (workLines) {
         // Người dùng đã xem/chỉnh: gửi bản nháp (làm mượt) làm nguồn chính.
         const anchors: Record<string, Pt[]> = {};
         for (const id of LINE_KEYS) anchors[id] = catmullRom(workLines[id], 3);
@@ -373,7 +385,9 @@ export default function PalmScanWorkspace() {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <span className="rounded-full border border-white/10 bg-surface-container/80 px-4 py-2 font-data-mono text-data-mono text-on-surface backdrop-blur-md">
                         <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-gold" />
-                        Đang lần theo các đường chỉ tay…
+                        {readMode === "ai"
+                          ? "AI đang đọc kỹ ảnh & luận giải… (20–40 giây)"
+                          : "Đang lần theo các đường chỉ tay…"}
                       </span>
                     </div>
                   </>
@@ -394,6 +408,53 @@ export default function PalmScanWorkspace() {
 
                 {phase === "done" && result && <PalmLinesOverlay lines={result.lines} />}
               </div>
+
+              {/* Chọn chế độ luận giải */}
+              {phase === "preview" && !redraw && (
+                <div className="mt-3 w-full">
+                  <div className="grid grid-cols-2 gap-2">
+                    {(
+                      [
+                        { key: "manual", icon: "draw", label: "Thủ công", sub: "Tự chỉnh đường chỉ tay" },
+                        { key: "ai", icon: "neurology", label: "AI đọc sâu", sub: "AI tự đọc & luận kỹ" },
+                      ] as const
+                    ).map((m) => (
+                      <button
+                        key={m.key}
+                        type="button"
+                        onClick={() => {
+                          setReadMode(m.key);
+                          if (m.key === "ai") setEditMode(false);
+                        }}
+                        className={`press flex flex-col items-start gap-0.5 rounded-lg border px-3.5 py-2.5 text-left transition-colors ${
+                          readMode === m.key
+                            ? "border-gold/50 bg-gold/10"
+                            : "border-white/15 hover:bg-white/5"
+                        }`}
+                      >
+                        <span
+                          className={`flex items-center gap-1.5 font-label-caps text-[11px] sm:text-label-caps ${
+                            readMode === m.key ? "text-gold" : "text-on-surface"
+                          }`}
+                        >
+                          <Icon name={m.icon} className="text-[15px]" />
+                          {m.label}
+                        </span>
+                        <span className="font-body-md text-[11px] text-on-surface-variant sm:text-xs">
+                          {m.sub}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                  {readMode === "ai" && (
+                    <p className="mt-1.5 flex items-start gap-1.5 font-body-md text-[11px] text-on-surface-variant sm:text-xs">
+                      <Icon name="info" className="mt-px shrink-0 text-[13px] text-gold/60" />
+                      AI đọc ảnh, suy nghĩ sâu, nói rõ từng đường chỉ + độ hở/độ dài ngón + bám kho tri
+                      thức rồi kết luận. Chậm hơn một chút, vẫn trừ 1 lượt.
+                    </p>
+                  )}
+                </div>
+              )}
 
               <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-3">
                 {phase === "done" && (
@@ -453,7 +514,7 @@ export default function PalmScanWorkspace() {
                   </button>
                 )}
 
-                {phase === "preview" && canProceed && !redraw && (
+                {phase === "preview" && canProceed && !redraw && readMode === "manual" && (
                   <button
                     type="button"
                     onClick={() => setEditMode((v) => !v)}
@@ -475,8 +536,8 @@ export default function PalmScanWorkspace() {
                     disabled={!readyToScan}
                     className="press flex items-center gap-2 rounded-sm bg-gold px-6 py-3 font-label-caps text-label-caps text-on-gold transition-shadow hover:shadow-[0_0_24px_rgba(212,175,55,0.35)] disabled:opacity-40 disabled:hover:shadow-none"
                   >
-                    <Icon name="auto_awesome" className="text-[18px]" />
-                    Bắt đầu luận giải
+                    <Icon name={readMode === "ai" ? "neurology" : "auto_awesome"} className="text-[18px]" />
+                    {readMode === "ai" ? "Luận giải AI — đọc sâu" : "Bắt đầu luận giải"}
                   </button>
                 )}
                 <button
@@ -534,8 +595,14 @@ export default function PalmScanWorkspace() {
 
         {phase === "preview" && !editMode && (
           <p className="mt-3 text-center font-body-md text-sm text-on-surface-variant">
-            Ảnh được kiểm tra ngay trên máy bạn. Đường chưa khớp? Bấm <b>Chỉnh đường</b> để tự đồ lại.
-            Mỗi lần luận giải trừ 1 lượt xem Chỉ tay.
+            {readMode === "ai" ? (
+              <>AI sẽ tự đọc ảnh và luận giải kỹ. Mỗi lần luận giải trừ 1 lượt xem Chỉ tay.</>
+            ) : (
+              <>
+                Ảnh được kiểm tra ngay trên máy bạn. Đường chưa khớp? Bấm <b>Chỉnh đường</b> để tự đồ
+                lại. Mỗi lần luận giải trừ 1 lượt xem Chỉ tay.
+              </>
+            )}
           </p>
         )}
       </div>
@@ -580,13 +647,27 @@ export default function PalmScanWorkspace() {
                     {errorKind === "not-palm" ? "Chọn ảnh khác" : "Thử lại"}
                   </button>
                   {errorKind === "not-palm" && image && (
-                    <button
-                      type="button"
-                      onClick={startManual}
-                      className="press rounded-sm bg-gold px-6 py-2.5 font-label-caps text-label-caps text-on-gold"
-                    >
-                      Đây đúng là lòng bàn tay — tôi tự vẽ
-                    </button>
+                    <>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReadMode("ai");
+                          setEditMode(false);
+                          setError(null);
+                          setPhase("preview");
+                        }}
+                        className="press rounded-sm bg-gold px-6 py-2.5 font-label-caps text-label-caps text-on-gold"
+                      >
+                        Để AI đọc sâu thử ảnh này
+                      </button>
+                      <button
+                        type="button"
+                        onClick={startManual}
+                        className="press rounded-sm border border-gold/40 px-6 py-2.5 font-label-caps text-label-caps text-gold hover:bg-gold/5"
+                      >
+                        Đây đúng là lòng bàn tay — tôi tự vẽ
+                      </button>
+                    </>
                   )}
                 </div>
               </div>
@@ -644,7 +725,15 @@ export default function PalmScanWorkspace() {
               <div className="pointer-events-none absolute -right-10 -top-10 h-32 w-32 rounded-full bg-gold/5 blur-3xl" />
               <div className="mb-1 flex items-center justify-between">
                 <h2 className="font-label-caps text-label-caps text-gold/70">Nguyên tố chính</h2>
-                <EngineBadge engine={reading!.engine} />
+                <div className="flex items-center gap-2">
+                  {result.aiDeep && (
+                    <span className="flex items-center gap-1 rounded-full border border-gold/30 bg-gold/10 px-2 py-0.5 font-label-caps text-[10px] text-gold">
+                      <Icon name="neurology" className="text-[12px]" />
+                      AI đọc sâu
+                    </span>
+                  )}
+                  <EngineBadge engine={reading!.engine} />
+                </div>
               </div>
               <div className="mb-3 flex items-center gap-3 font-headline-lg text-headline-lg text-gold">
                 {result.element}
@@ -673,9 +762,23 @@ export default function PalmScanWorkspace() {
                       <span className="font-data-mono text-[12px] text-outline">{line.tag}</span>
                     </div>
                   </div>
-                  <p className="font-body-md text-sm text-on-surface-variant">{line.description}</p>
+                  <p className="whitespace-pre-line font-body-md text-sm text-on-surface-variant">{line.description}</p>
                 </div>
               ))}
+
+              {result.handNarrative && (
+                <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 motion-safe:animate-fade-in-up">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Icon name="back_hand" className="text-[18px] text-gold/70" />
+                    <h3 className="font-label-caps text-label-caps text-on-surface-variant">
+                      Tổng quan bàn tay — ngón tay &amp; độ hở
+                    </h3>
+                  </div>
+                  <p className="whitespace-pre-line font-body-md text-sm leading-relaxed text-on-surface-variant">
+                    {result.handNarrative}
+                  </p>
+                </div>
+              )}
 
               {result.moleReadings && result.moleReadings.length > 0 && (
                 <HandMolePanel readings={result.moleReadings} observed={observation?.moles} />
@@ -704,6 +807,7 @@ export default function PalmScanWorkspace() {
                       setEditedIds(new Set());
                     }
                     setReading(null);
+                    setReadMode("manual");
                     setEditMode(true);
                     setPhase("preview");
                   }}

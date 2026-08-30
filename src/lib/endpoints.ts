@@ -79,6 +79,10 @@ export interface PalmResult {
   lines: PalmLine[];
   /** số đo ngón tay / hình bàn tay (từ MediaPipe, tất định) */
   hand?: HandMetrics;
+  /** true nếu luận giải ở chế độ "AI đọc sâu" */
+  aiDeep?: boolean;
+  /** mô tả tổng quan bàn tay: ngón tay, độ hở, hình bàn tay (chế độ AI đọc sâu) */
+  handNarrative?: string;
   /** luận giải nốt ruồi trên bàn tay theo vùng người dùng khai */
   moleReadings?: PalmMoleReading[];
   subject?: PalmSubject | null;
@@ -214,6 +218,8 @@ export interface PalmHint {
   metrics?: HandMetrics;
   /** trắc nghiệm người dùng điền trước khi tải ảnh */
   intake?: PalmIntake;
+  /** "ai" = chế độ AI đọc sâu (thinking + luận chi tiết); mặc định "manual" */
+  mode?: "manual" | "ai";
 }
 
 export const readings = {
