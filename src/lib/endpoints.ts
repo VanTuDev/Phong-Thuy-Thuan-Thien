@@ -40,13 +40,23 @@ export interface PalmLine {
 }
 export type PalmLineId = "path-life" | "path-head" | "path-heart";
 
+/** "declared" = tự khai ô số · "search" = nhờ AI tìm · "none" = không có. */
+export type MoleMode = "declared" | "search" | "none";
+
+/** Trắc nghiệm nốt ruồi trên MẶT (dùng cho reading type "not-ruoi"). */
+export interface FaceMoleIntake {
+  mode: MoleMode;
+  positions: number[]; // số vị trí 1..78; [] khi mode != "declared"
+}
+
 /** Trắc nghiệm người dùng điền trước khi tải ảnh chỉ tay. */
 export interface PalmIntake {
   name: string;
   dob: string; // "YYYY-MM-DD"
   gender: "nam" | "nu";
   hand: "trai" | "phai";
-  handMoles: number[]; // số vùng (1..10) đã khai; [] = không có
+  handMoles: number[]; // số ô (1..50) đã khai; [] = không khai
+  handMoleMode?: MoleMode;
 }
 
 export interface BaTrach {
@@ -128,6 +138,8 @@ export interface Reading {
   observation?: PalmObservation | null;
   /** Trắc nghiệm người dùng điền trước khi tải ảnh (chỉ tay). */
   intake?: PalmIntake | null;
+  /** Trắc nghiệm nốt ruồi trên mặt (chỉ ở type "not-ruoi"). */
+  faceMoleIntake?: FaceMoleIntake | null;
   createdAt: string;
 }
 
@@ -219,8 +231,13 @@ export const readings = {
     apiFetch<{ reading: Reading; remaining: number }>("/readings/palm", {
       body: { image, ...(hint ?? {}) },
     }),
-  mole: (image: string) =>
-    apiFetch<{ reading: Reading; remaining: number }>("/readings/mole", { body: { image } }),
+  mole: (image: string, intake?: FaceMoleIntake) =>
+    apiFetch<{ reading: Reading; remaining: number }>("/readings/mole", {
+      body: { image, ...(intake ? { intake } : {}) },
+    }),
+  /** Ghi lại đường chỉ tay sau khi client bám nếp gấp thật (source → "cv"). */
+  updateLines: (id: string, lines: { id: string; points: [number, number][] }[]) =>
+    apiFetch<{ reading: Reading }>(`/readings/${id}/lines`, { method: "PATCH", body: { lines } }),
   list: (type?: ReadingType) =>
     apiFetch<{ readings: Reading[] }>(`/readings${type ? `?type=${type}` : ""}`),
 };
@@ -348,6 +365,7 @@ export interface AdminReadingLog {
   summary: string;
   observation?: PalmObservation | null;
   intake?: PalmIntake | null;
+  faceMoleIntake?: FaceMoleIntake | null;
   createdAt: string;
 }
 

@@ -36,14 +36,21 @@ Khi khởi động, `next.config.mjs` in cấu hình đang dùng (API backend, G
 
 ## Deploy
 
-Xem [`DEPLOY.md`](./DEPLOY.md) — deploy lên **Vercel** (zero-config Next.js; chỉ
-cần đặt `NEXT_PUBLIC_API_URL` trỏ tới backend Railway và `NEXT_PUBLIC_GOOGLE_CLIENT_ID`).
+Xem [`DEPLOY.md`](./DEPLOY.md) — deploy lên **Vercel** (zero-config Next.js). URL
+production đặt ở [`.env.production`](./.env.production) (có commit — chỉ chứa
+`NEXT_PUBLIC_*`) hoặc Vercel Dashboard. Backend deploy lên **Render**
+(`../Backend-Phong-Thuy-Thuan-Thien/DEPLOY.md`).
 
-## Biến môi trường (`.env.local`)
+## Biến môi trường
+
+| File | Dùng khi | Commit? |
+|---|---|---|
+| `.env.local` | Dev cục bộ (ghi đè mọi file) | Không |
+| `.env.production` | `next build` / Vercel Production | **Có** |
 
 ```
-NEXT_PUBLIC_API_URL=            # để TRỐNG = tự suy ra <host đang mở>:4000
-                               #   → mở bằng điện thoại http://192.168.1.2:3000 vẫn chạy
+NEXT_PUBLIC_API_URL=            # TRỐNG = tự suy ra <host đang mở>:4000 (dev/LAN).
+                               # Production: https://<backend>.onrender.com (KHÔNG "/" cuối)
 NEXT_PUBLIC_API_PORT=4000       # cổng API khi tự suy ra
 NEXT_PUBLIC_GOOGLE_CLIENT_ID=   # để trống = nút "Đăng nhập demo"
 ```

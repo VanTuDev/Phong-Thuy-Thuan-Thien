@@ -5,12 +5,16 @@ import Link from "next/link";
 import Icon from "@/components/ui/Icon";
 import ImageUploader from "@/components/ui/ImageUploader";
 import EngineBadge from "@/components/ui/EngineBadge";
+import MolePicker, { type MolePickValue } from "@/components/ui/MolePicker";
 import { ApiError } from "@/lib/api";
 import { readings, type MoleResult, type Reading } from "@/lib/endpoints";
+import { FACE_CHART_IMG, FACE_MOLE_POSITIONS } from "@/lib/palmRegions";
 import type { PreparedImage } from "@/lib/image";
 import { useSession } from "@/components/session/SessionProvider";
 
 type Phase = "empty" | "preview" | "scanning" | "done" | "error";
+
+const DEFAULT_MOLE: MolePickValue = { mode: "search", positions: [] };
 
 export default function MoleScanWorkspace() {
   const { isLoggedIn, wallet, setWallet } = useSession();
@@ -19,6 +23,7 @@ export default function MoleScanWorkspace() {
   const [reading, setReading] = useState<Reading | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [active, setActive] = useState<string | null>(null);
+  const [mole, setMole] = useState<MolePickValue>(DEFAULT_MOLE);
 
   const canScan = isLoggedIn && wallet.notRuoi > 0;
   const result = reading?.result as MoleResult | undefined;
@@ -29,6 +34,7 @@ export default function MoleScanWorkspace() {
     setReading(null);
     setError(null);
     setActive(null);
+    setMole(DEFAULT_MOLE);
   };
 
   const analyze = async () => {
@@ -36,7 +42,7 @@ export default function MoleScanWorkspace() {
     setPhase("scanning");
     setError(null);
     try {
-      const res = await readings.mole(image.dataUrl);
+      const res = await readings.mole(image.dataUrl, mole);
       setReading(res.reading);
       setWallet({ ...wallet, notRuoi: res.remaining });
       setPhase("done");
@@ -48,9 +54,13 @@ export default function MoleScanWorkspace() {
 
   return (
     <>
-      {/* ── Cột trái ─────────────────────────────────────────────────── */}
+      {/* ── Cột trái: ảnh khuôn mặt ─────────────────────────────────── */}
       <div className="flex flex-col items-center lg:col-span-7">
-        <div className="relative aspect-[3/4] w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low tho-pattern">
+        <div
+          className={`relative aspect-[3/4] w-full max-w-lg overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low tho-pattern ${
+            phase === "preview" ? "max-h-[42vh] sm:max-h-none" : ""
+          }`}
+        >
           {!isLoggedIn && <Gate kind="login" />}
           {isLoggedIn && !canScan && phase === "empty" && <Gate kind="credits" />}
 
@@ -84,49 +94,59 @@ export default function MoleScanWorkspace() {
               )}
 
               {phase === "done" &&
-                result?.moles.map((mole, i) => (
+                result?.moles.map((m, i) => (
                   <button
-                    key={mole.id}
+                    key={m.id}
                     type="button"
-                    onMouseEnter={() => setActive(mole.id)}
+                    onMouseEnter={() => setActive(m.id)}
                     onMouseLeave={() => setActive(null)}
-                    onFocus={() => setActive(mole.id)}
+                    onFocus={() => setActive(m.id)}
                     onBlur={() => setActive(null)}
                     className="absolute -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-background bg-gold transition-all duration-300 motion-safe:animate-scale-in"
                     style={{
-                      left: `${mole.x}%`,
-                      top: `${mole.y}%`,
-                      width: active === mole.id ? 20 : 13,
-                      height: active === mole.id ? 20 : 13,
+                      left: `${m.x}%`,
+                      top: `${m.y}%`,
+                      width: active === m.id ? 20 : 13,
+                      height: active === m.id ? 20 : 13,
                       boxShadow:
-                        active === mole.id
+                        active === m.id
                           ? "0 0 22px rgba(212,175,55,0.85)"
                           : "0 0 10px rgba(212,175,55,0.5)",
                       animationDelay: `${i * 250}ms`,
                     }}
-                    aria-label={`Nốt ruồi cung ${mole.name}`}
+                    aria-label={`Nốt ruồi ${m.name}`}
                   />
                 ))}
             </div>
           )}
         </div>
 
-        <div className="mt-6 flex w-full max-w-lg gap-3">
+        <div className="mt-5 flex w-full max-w-lg gap-3">
           {phase === "preview" && (
             <button
               type="button"
               onClick={analyze}
-              className="press flex flex-1 items-center justify-center gap-2 rounded-sm bg-gold py-4 font-label-caps text-label-caps uppercase tracking-widest text-on-gold transition-shadow hover:shadow-[0_0_24px_rgba(212,175,55,0.35)]"
+              className="press flex flex-1 items-center justify-center gap-2 rounded-sm bg-gold py-3.5 font-label-caps text-label-caps uppercase tracking-widest text-on-gold transition-shadow hover:shadow-[0_0_24px_rgba(212,175,55,0.35)]"
             >
               <Icon name="auto_awesome" className="text-[18px]" />
-              Bắt đầu phân tích
+              {mole.mode === "none" ? "Phân tích khuôn mặt" : "Bắt đầu phân tích"}
+            </button>
+          )}
+          {phase === "preview" && (
+            <button
+              type="button"
+              onClick={reset}
+              className="press tap-target flex items-center justify-center rounded-sm border border-white/20 px-4 text-on-surface hover:bg-white/5"
+              title="Chọn ảnh khác"
+            >
+              <Icon name="refresh" className="text-[18px]" />
             </button>
           )}
           {phase === "scanning" && (
             <button
               type="button"
               disabled
-              className="flex flex-1 items-center justify-center gap-2 rounded-sm bg-gold/60 py-4 font-label-caps text-label-caps uppercase tracking-widest text-on-gold"
+              className="flex flex-1 items-center justify-center gap-2 rounded-sm bg-gold/60 py-3.5 font-label-caps text-label-caps uppercase tracking-widest text-on-gold"
             >
               <Icon name="progress_activity" className="animate-spin" />
               Đang phân tích…
@@ -136,60 +156,89 @@ export default function MoleScanWorkspace() {
             <button
               type="button"
               onClick={reset}
-              className="press flex flex-1 items-center justify-center gap-2 rounded-sm border border-white/15 bg-surface-container-high py-4 font-label-caps text-label-caps text-on-surface hover:bg-surface-variant"
+              className="press flex flex-1 items-center justify-center gap-2 rounded-sm border border-white/15 bg-surface-container-high py-3.5 font-label-caps text-label-caps text-on-surface hover:bg-surface-variant"
             >
               <Icon name="add_a_photo" />
               Phân tích ảnh khác
             </button>
           )}
         </div>
+
+        {phase === "preview" && (
+          <p className="mt-3 max-w-lg text-center font-body-md text-xs text-outline">
+            Mỗi lần phân tích trừ 1 lượt xem Nốt ruồi.
+          </p>
+        )}
       </div>
 
-      {/* ── Cột phải ─────────────────────────────────────────────────── */}
+      {/* ── Cột phải: trắc nghiệm / kết quả ─────────────────────────── */}
       <div className="relative flex flex-col gap-gutter lg:col-span-5">
         <div className="pointer-events-none absolute -right-32 -top-32 h-96 w-96 rounded-full bg-gold/10 blur-[100px]" />
-        <div className="flex flex-grow flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low p-6 sm:p-8">
-          <div className="mb-6 flex items-center justify-between border-b border-white/10 pb-4">
-            <h2 className="font-headline-md text-headline-md text-white">Kết quả phân tích</h2>
+        <div className="flex flex-grow flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low p-4 sm:p-6">
+          <div className="mb-4 flex items-center justify-between border-b border-white/10 pb-3">
+            <h2 className="font-headline-md text-[19px] text-white sm:text-headline-md">
+              {phase === "preview" ? "Nốt ruồi trên mặt" : "Kết quả phân tích"}
+            </h2>
             {phase === "done" && reading && <EngineBadge engine={reading.engine} />}
           </div>
 
-          {phase === "done" && result ? (
-            <div className="flex flex-grow flex-col space-y-4 overflow-y-auto pr-1">
+          {phase === "preview" ? (
+            <div className="flex-grow overflow-y-auto pr-1">
+              <p className="mb-3 font-body-md text-xs text-on-surface-variant">
+                Đối chiếu sơ đồ 78 vị trí với khuôn mặt bạn, chấm các ô có nốt ruồi — hoặc để AI tự tìm.
+              </p>
+              <MolePicker
+                chartSrc={FACE_CHART_IMG}
+                chartAlt="Sơ đồ 78 vị trí nốt ruồi trên khuôn mặt"
+                count={FACE_MOLE_POSITIONS}
+                where="khuôn mặt"
+                value={mole}
+                onChange={setMole}
+              />
+            </div>
+          ) : phase === "done" && result ? (
+            <div className="flex flex-grow flex-col space-y-3 overflow-y-auto pr-1">
               {reading?.summary && (
-                <p className="rounded-xl border border-gold/20 bg-gold/[0.04] p-4 font-body-md text-sm text-on-surface motion-safe:animate-fade-in-up">
+                <p className="rounded-xl border border-gold/20 bg-gold/[0.04] p-3.5 font-body-md text-sm text-on-surface motion-safe:animate-fade-in-up">
                   {reading.summary}
                 </p>
               )}
-              {result.moles.map((mole, i) => (
+              {result.moles.length === 0 && (
+                <p className="rounded-xl border border-white/10 bg-surface-container-lowest/60 p-4 text-center font-body-md text-sm text-on-surface-variant">
+                  Không có nốt ruồi nào được luận giải cho lượt này.
+                </p>
+              )}
+              {result.moles.map((m, i) => (
                 <div
-                  key={mole.id}
-                  onMouseEnter={() => setActive(mole.id)}
+                  key={m.id}
+                  onMouseEnter={() => setActive(m.id)}
                   onMouseLeave={() => setActive(null)}
-                  className="flex cursor-default gap-4 rounded-xl border bg-surface-container-high p-5 transition-colors duration-300 motion-safe:animate-fade-in-up"
+                  className="flex cursor-default gap-3.5 rounded-xl border bg-surface-container-high p-4 transition-colors duration-300 motion-safe:animate-fade-in-up"
                   style={{
                     animationDelay: `${i * 90}ms`,
-                    borderColor: active === mole.id ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.05)",
+                    borderColor: active === m.id ? "rgba(212,175,55,0.5)" : "rgba(255,255,255,0.05)",
                   }}
                 >
                   <div
-                    className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full border transition-colors"
+                    className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border transition-colors"
                     style={{
-                      borderColor: active === mole.id ? "rgba(212,175,55,0.6)" : "rgba(255,255,255,0.1)",
-                      background: active === mole.id ? "rgba(212,175,55,0.12)" : "rgba(53,52,52,0.6)",
+                      borderColor: active === m.id ? "rgba(212,175,55,0.6)" : "rgba(255,255,255,0.1)",
+                      background: active === m.id ? "rgba(212,175,55,0.12)" : "rgba(53,52,52,0.6)",
                     }}
                   >
-                    <Icon name={mole.icon} className="text-xl text-gold" />
+                    <Icon name={m.icon} className="text-lg text-gold" />
                   </div>
                   <div>
-                    <h4 className="mb-1 font-headline-md text-[20px] leading-7 text-gold">{mole.name}</h4>
-                    <p className="font-body-md text-sm text-on-surface-variant">{mole.desc}</p>
+                    <h4 className="mb-0.5 font-headline-md text-[17px] leading-6 text-gold">{m.name}</h4>
+                    <p className="font-body-md text-[13px] leading-relaxed text-on-surface-variant sm:text-sm">
+                      {m.desc}
+                    </p>
                   </div>
                 </div>
               ))}
               <Link
                 href="/lich-su"
-                className="press mt-2 flex items-center justify-center gap-2 rounded-sm border border-white/15 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/5"
+                className="press mt-1 flex items-center justify-center gap-2 rounded-sm border border-white/15 py-3 font-label-caps text-label-caps text-on-surface hover:bg-white/5"
               >
                 <Icon name="history" className="text-[16px]" />
                 Xem trong lịch sử
@@ -216,29 +265,32 @@ export default function MoleScanWorkspace() {
             </div>
           ) : (
             <div className="flex flex-grow flex-col">
-              <div className="mb-6 flex items-center gap-2">
+              <div className="mb-5 flex items-center gap-2">
                 <Icon name="auto_awesome" className="text-[18px] text-gold/70" />
                 <h4 className="font-label-caps text-label-caps text-on-surface-variant">Bạn sẽ nhận được</h4>
               </div>
-              <ul className="space-y-3">
+              <ul className="space-y-2.5">
                 {[
                   { icon: "attach_money", t: "Cung Tài bạch", d: "Khả năng tích lũy, tài lộc" },
                   { icon: "work", t: "Cung Sự nghiệp", d: "Lãnh đạo, quý nhân phù trợ" },
-                  { icon: "favorite", t: "Cung Tình duyên", d: "Đường tình cảm, thị phi" },
+                  { icon: "favorite", t: "Cung Tình duyên", d: "Đường tình cảm, hôn nhân" },
                 ].map((row) => (
-                  <li key={row.t} className="flex items-start gap-3 rounded-lg border border-white/5 bg-surface-container-high/60 p-3.5">
+                  <li
+                    key={row.t}
+                    className="flex items-start gap-3 rounded-lg border border-white/5 bg-surface-container-high/60 p-3"
+                  >
                     <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-surface-variant/60 text-gold">
                       <Icon name={row.icon} className="text-[16px]" />
                     </span>
                     <div>
-                      <p className="font-headline-md text-[17px] text-on-surface">{row.t}</p>
-                      <p className="font-body-md text-sm text-on-surface-variant">{row.d}</p>
+                      <p className="font-headline-md text-[16px] text-on-surface">{row.t}</p>
+                      <p className="font-body-md text-[13px] text-on-surface-variant">{row.d}</p>
                     </div>
                   </li>
                 ))}
               </ul>
               <p className="mt-auto pt-6 font-body-md text-xs text-outline">
-                AI xác định vị trí nốt ruồi theo cung vị trên khuôn mặt, không luận theo hình dạng.
+                Sau khi tải ảnh, bạn có thể chấm các vị trí nốt ruồi trên sơ đồ 78 điểm — hoặc để AI tự tìm.
               </p>
             </div>
           )}

@@ -53,18 +53,50 @@ const REJECT_MESSAGE: Record<PalmRejectReason, string> = {
 // ── MediaPipe loader (singleton) ────────────────────────────────────────────
 let landmarkerPromise: Promise<HandLandmarker> | null = null;
 
+/**
+ * MediaPipe/TFLite in stderr những dòng "INFO/WARNING: ... XNNPACK delegate ..."
+ * qua console.error → Next.js 15 dev overlay bắt nhầm là lỗi. Lọc đúng các dòng
+ * vô hại này (không đụng lỗi thật).
+ */
+let consoleQuieted = false;
+function quietMediaPipeLogs(): void {
+  if (consoleQuieted || typeof console === "undefined") return;
+  consoleQuieted = true;
+  const benign =
+    /^(INFO|WARNING|VERBOSE|W\d*|I\d*)[:\s].*(TensorFlow Lite|XNNPACK|tflite|GL version|delegate for (CPU|GPU)|Graph successfully started)/i;
+  for (const level of ["error", "warn"] as const) {
+    const orig = console[level].bind(console) as (...a: unknown[]) => void;
+    const wrapped = (...args: unknown[]): void => {
+      if (typeof args[0] === "string" && benign.test(args[0])) {
+        console.debug("[mediapipe]", ...args);
+        return;
+      }
+      orig(...args);
+    };
+    console[level] = wrapped as typeof console.error;
+  }
+}
+
 export function loadHandLandmarker(): Promise<HandLandmarker> {
   if (landmarkerPromise) return landmarkerPromise;
+  quietMediaPipeLogs();
   landmarkerPromise = (async () => {
     const vision = await import("@mediapipe/tasks-vision");
     const fileset = await vision.FilesetResolver.forVisionTasks("/mediapipe/wasm");
-    return vision.HandLandmarker.createFromOptions(fileset, {
-      baseOptions: { modelAssetPath: "/mediapipe/hand_landmarker.task" },
-      numHands: 1,
-      runningMode: "IMAGE",
-      minHandDetectionConfidence: 0.5,
-      minHandPresenceConfidence: 0.5,
-    });
+    const opts = (delegate: "GPU" | "CPU") =>
+      ({
+        baseOptions: { modelAssetPath: "/mediapipe/hand_landmarker.task", delegate },
+        numHands: 1,
+        runningMode: "IMAGE" as const,
+        minHandDetectionConfidence: 0.4,
+        minHandPresenceConfidence: 0.4,
+      }) as const;
+    try {
+      return await vision.HandLandmarker.createFromOptions(fileset, opts("GPU"));
+    } catch {
+      // Vài máy không có WebGL/GPU delegate → dùng CPU (XNNPACK).
+      return await vision.HandLandmarker.createFromOptions(fileset, opts("CPU"));
+    }
   })().catch((err) => {
     landmarkerPromise = null; // cho phép thử lại lần sau
     throw err;
@@ -72,14 +104,22 @@ export function loadHandLandmarker(): Promise<HandLandmarker> {
   return landmarkerPromise;
 }
 
-/** Nạp data URL thành <img> đã decode để đưa vào MediaPipe. */
-export function loadImageElement(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
+/** Nạp data URL thành <img> ĐÃ decode (bảo đảm có kích thước) để đưa vào MediaPipe. */
+export async function loadImageElement(src: string): Promise<HTMLImageElement> {
+  const img = new Image();
+  img.decoding = "async";
+  img.src = src;
+  await new Promise<void>((resolve, reject) => {
+    img.onload = () => resolve();
     img.onerror = () => reject(new Error("Không đọc được ảnh."));
-    img.src = src;
   });
+  try {
+    await img.decode();
+  } catch {
+    /* trình duyệt cũ không có decode() — đã qua onload là đủ */
+  }
+  if (!img.naturalWidth || !img.naturalHeight) throw new Error("Ảnh rỗng hoặc hỏng.");
+  return img;
 }
 
 // ── Hình học ───────────────────────────────────────────────────────────────
@@ -230,8 +270,22 @@ export async function detectPalm(
     return { ok: false, reason: "load-failed", message: REJECT_MESSAGE["load-failed"] };
   }
 
-  const res = landmarker.detect(image);
-  if (!res.landmarks || res.landmarks.length === 0) {
+  // Ảnh phải có kích thước thật trước khi đưa vào MediaPipe.
+  const iw = "naturalWidth" in image ? image.naturalWidth : image.width;
+  const ih = "naturalHeight" in image ? image.naturalHeight : image.height;
+  if (!iw || !ih) {
+    return { ok: false, reason: "load-failed", message: REJECT_MESSAGE["load-failed"] };
+  }
+
+  let res: ReturnType<HandLandmarker["detect"]>;
+  try {
+    res = landmarker.detect(image);
+  } catch (err) {
+    // MediaPipe/WASM lỗi lúc suy luận → không chặn, để Gemini tự xác thực bàn tay.
+    console.warn("[handDetect] landmarker.detect lỗi:", (err as Error)?.message ?? err);
+    return { ok: false, reason: "load-failed", message: REJECT_MESSAGE["load-failed"] };
+  }
+  if (!res || !res.landmarks || res.landmarks.length === 0) {
     return { ok: false, reason: "no-hand", message: REJECT_MESSAGE["no-hand"] };
   }
 
@@ -240,7 +294,7 @@ export async function detectPalm(
   if (box.w * box.h < 0.055 || box.w < 0.16 || box.h < 0.24) {
     return { ok: false, reason: "too-small", message: REJECT_MESSAGE["too-small"] };
   }
-  if (countExtendedFingers(lm) < 3) {
+  if (countExtendedFingers(lm) < 2) {
     return { ok: false, reason: "closed", message: REJECT_MESSAGE.closed };
   }
 

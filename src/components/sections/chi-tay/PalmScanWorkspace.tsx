@@ -29,6 +29,7 @@ import {
   type PalmLineKey,
   type Pt,
 } from "@/lib/handDetect";
+import { refineLinesToCrease } from "@/lib/palmCrease";
 import PalmLineEditor, { PALM_LINE_COLOR } from "@/components/sections/chi-tay/PalmLineEditor";
 import PalmMetricsPanel from "@/components/sections/chi-tay/PalmMetricsPanel";
 import { useSession } from "@/components/session/SessionProvider";
@@ -199,6 +200,46 @@ export default function PalmScanWorkspace() {
     }
   }, []);
 
+  /**
+   * Sau khi Gemini dò thô 3 đường: kéo chúng về đúng nếp gấp thật trên ảnh (xử lý
+   * ảnh trên máy), rồi ghi lại (source → "cv"). Không đụng đường người dùng tự vẽ.
+   */
+  const refineAiLines = async (rd: Reading): Promise<Reading> => {
+    if (!image || rd.type !== "chi-tay") return rd;
+    const res = rd.result as PalmResult | null;
+    const aiLines = (res?.lines ?? []).filter(
+      (l): l is typeof l & { points: [number, number][] } =>
+        l.source === "ai" && Array.isArray(l.points) && l.points.length >= 3,
+    );
+    if (!aiLines.length) return rd;
+    try {
+      const el = await loadImageElement(image.dataUrl);
+      const input: Record<string, Pt[]> = {};
+      for (const l of aiLines) input[l.id] = l.points;
+      const snapped = refineLinesToCrease(el, input, detection?.landmarks ?? null);
+
+      const nextLines = (res?.lines ?? []).map((l) => {
+        const s = snapped[l.id];
+        return s?.traced ? { ...l, points: s.points, source: "cv" as const } : l;
+      });
+      const changed = nextLines.filter(
+        (l, i) => l.source === "cv" && l !== (res?.lines ?? [])[i],
+      );
+      if (!changed.length) return rd;
+
+      const patched: Reading = { ...rd, result: { ...(res as PalmResult), lines: nextLines } };
+      void readings
+        .updateLines(
+          rd.id,
+          changed.map((l) => ({ id: l.id, points: l.points as [number, number][] })),
+        )
+        .catch(() => undefined);
+      return patched;
+    } catch {
+      return rd;
+    }
+  };
+
   const analyze = async () => {
     if (!image) return;
     if (redraw) finishRedraw();
@@ -236,6 +277,8 @@ export default function PalmScanWorkspace() {
       setReading(res.reading);
       setWallet({ ...wallet, chiTay: res.remaining });
       setPhase("done");
+      // Gemini đã dò thô → bám nếp gấp THẬT trên ảnh (xử lý ảnh phía trình duyệt).
+      void refineAiLines(res.reading).then((rd) => setReading(rd));
     } catch (err) {
       void refreshWallet(); // BE hoàn lượt khi thất bại
       if (err instanceof ApiError && err.status === 422) {
@@ -269,7 +312,11 @@ export default function PalmScanWorkspace() {
                 <span className="flex items-center gap-2 font-body-md text-sm text-on-surface-variant">
                   <Icon name="person" className="text-[16px] text-gold/70" />
                   {intake.name} · tay {handLabel(intake.hand)}
-                  {intake.handMoles.length > 0 && ` · nốt ruồi vùng ${intake.handMoles.join(", ")}`}
+                  {intake.handMoleMode === "search"
+                    ? " · nốt ruồi: AI tìm"
+                    : intake.handMoles.length > 0
+                      ? ` · nốt ruồi ô ${intake.handMoles.join(", ")}`
+                      : ""}
                 </span>
                 <button
                   type="button"
@@ -648,6 +695,18 @@ export default function PalmScanWorkspace() {
                 <button
                   type="button"
                   onClick={() => {
+                    // Bắt đầu chỉnh TỪ đường kết quả (đã bám nếp gấp), không phải neo thô.
+                    const seed: Partial<Record<PalmLineKey, Pt[]>> = {};
+                    for (const id of LINE_KEYS) {
+                      const l = result.lines.find((x) => x.id === id);
+                      if (l?.points && l.points.length >= 3) {
+                        seed[id] = resamplePolyline(l.points as Pt[], EDIT_HANDLES);
+                      }
+                    }
+                    if (Object.keys(seed).length === 3) {
+                      setWorkLines(seed as Record<PalmLineKey, Pt[]>);
+                      setEditedIds(new Set());
+                    }
                     setReading(null);
                     setEditMode(true);
                     setPhase("preview");

@@ -172,6 +172,38 @@ body {
   }
 }
 
+/* ── Điện thoại: thu nhỏ chữ để hiển thị được nhiều nội dung hơn ─────────── */
+@media (max-width: 639px) {
+  .text-display-lg {
+    font-size: 38px;
+    line-height: 44px;
+  }
+  .text-headline-lg {
+    font-size: 30px;
+    line-height: 38px;
+  }
+  .text-headline-lg-mobile {
+    font-size: 26px;
+    line-height: 32px;
+  }
+  .text-headline-md {
+    font-size: 22px;
+    line-height: 28px;
+  }
+  .text-body-lg {
+    font-size: 15px;
+    line-height: 22px;
+  }
+  .text-body-md {
+    font-size: 14px;
+    line-height: 21px;
+  }
+  .text-label-caps {
+    font-size: 11px;
+    line-height: 15px;
+  }
+}
+
 /* Tôn trọng người dùng tắt hiệu ứng chuyển động */
 @media (prefers-reduced-motion: reduce) {
   *,

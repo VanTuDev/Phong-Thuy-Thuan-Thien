@@ -27,7 +27,7 @@ trên nền gần đen `#0A0A0A`).
 |---|---|---|
 | `/` | Landing page | Giới thiệu thương hiệu, dẫn tới 3 tính năng dưới |
 | `/phan-tich-chi-tay` | Phân tích Chỉ tay | Upload ảnh lòng bàn tay → AI "quét" 3 đường chỉ tay: **Đường gia đình** (đỏ, `path-life`), **Đường tình duyên** (xanh dương, `path-head`), **Đường công danh sự nghiệp** (vàng, `path-heart`), kèm số đo ngón tay/độ hở ngón và Bát Trạch |
-| `/phan-tich-not-ruoi` | Phân tích Nốt ruồi | Upload ảnh khuôn mặt → AI định vị các nốt ruồi và luận giải theo cung vị tướng số (tài lộc, sự nghiệp, tình duyên...) |
+| `/phan-tich-not-ruoi` | Phân tích Nốt ruồi (MẶT) | Upload ảnh khuôn mặt → người xem chấm các ô có nốt ruồi trên **sơ đồ 78 vị trí** (`/DataNotRuoi/AnhNotRuoiTrenMat.png`), hoặc chọn "để AI tìm" / "không có" → AI luận theo cung vị tướng số. Nốt ruồi trên **TAY** khai ở sơ đồ 50 ô trong trắc nghiệm của trang Chỉ tay. |
 | `/co-van` | Cố vấn AI (chatbot) | Trò chuyện tự do với "Modern Sage" — trả lời theo Bát Trạch (Quái số, Đông/Tây Tứ Trạch), Ngũ Hành, hướng nhà/hướng bàn làm việc |
 
 Và khu vực **admin** (nội bộ, không phải khách hàng dùng):
@@ -58,8 +58,13 @@ sau — đây là tri thức nền, không phải thứ được bịa tự do:
   `title`/`tag`/ý nghĩa. Màu + nhãn đồng bộ ở `lib/handDetect.ts`,
   `PalmLineEditor.tsx`, prompt Gemini (`Backend/src/services/gemini.ts`) và dữ
   liệu mẫu (`Backend/src/services/demoData.ts`). **Không có đường phụ nào khác.**
-- **Nốt ruồi**: luận theo **cung vị trên mặt** (tài bạch = tài lộc, cung sự
-  nghiệp, cung tình duyên...), không luận theo hình dạng/màu sắc nốt ruồi.
+- **Nốt ruồi**: luận theo **cung vị** — trên mặt (tài bạch, sự nghiệp, tình
+  duyên, phúc đức, tử tức, nô bộc, phu thê...) và trên lòng bàn tay (các gò Kim
+  Tinh / Thái Dương / Thái Âm...). KHÔNG luận theo hình dạng/màu sắc nốt ruồi.
+  Người xem tự khai ô số trên sơ đồ (78 mặt / 50 tay); backend KHÔNG hard-code ý
+  nghĩa từng ô — Gemini tự luận theo số ô, admin nạp tri thức ở Kho kiến thức nếu
+  muốn bám sát tướng số. Helper: `lib/palmRegions.ts` (FE) ·
+  `Backend/src/services/palmRegions.ts` · component `ui/MolePicker.tsx`.
 - Giọng luận giải: khẳng định nhưng không tuyệt đối hoá — ví dụ dòng disclaimer
   cố định trong `ChatInputBar.tsx`: *"Trí tuệ AI là người dẫn đường, không
   phải định mệnh tuyệt đối."* Mọi luận giải mới nên giữ tinh thần này (gợi mở,
@@ -90,7 +95,7 @@ tách khỏi component JSX, đặt cạnh component dùng nó, theo quy ước
 components/sections/landing/servicesData.ts       SERVICES        (3 thẻ dịch vụ trên landing)
 components/sections/co-van/chatData.ts             DEMO_EXCHANGE   (hội thoại mẫu trong /co-van)
 components/sections/chi-tay/lineDetails.ts         LINE_DETAILS    (luận giải 3 đường chỉ tay)
-components/sections/not-ruoi/moleData.ts           MOCK_MOLES      (nốt ruồi + toạ độ + luận giải)
+(nốt ruồi: không còn mock data — người xem tự khai qua ui/MolePicker.tsx, backend luận qua Gemini)
 components/sections/kho-kien-thuc-ai/documentData.ts DOCUMENTS     (tài liệu huấn luyện AI)
 components/sections/quan-ly-nguoi-dung/userData.ts   USERS         (danh sách người dùng)
 components/sections/quan-ly-nguoi-dung/statsData.ts  STATS         (3 chỉ số tổng quan)

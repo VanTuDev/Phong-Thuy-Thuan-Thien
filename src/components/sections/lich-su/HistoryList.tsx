@@ -128,9 +128,11 @@ export default function HistoryList() {
                   {(entry.result as PalmResult | null)?.baTrach
                     ? ` · Quái số ${(entry.result as PalmResult).baTrach!.kua}`
                     : ""}
-                  {entry.intake.handMoles.length
-                    ? ` · nốt ruồi vùng ${entry.intake.handMoles.join(", ")}`
-                    : ""}
+                  {entry.intake.handMoleMode === "search"
+                    ? " · nốt ruồi: AI tìm"
+                    : entry.intake.handMoles.length
+                      ? ` · nốt ruồi ô ${entry.intake.handMoles.join(", ")}`
+                      : ""}
                 </p>
               )}
             </div>

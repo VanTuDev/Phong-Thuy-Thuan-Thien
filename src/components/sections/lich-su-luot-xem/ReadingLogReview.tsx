@@ -168,10 +168,28 @@ export default function ReadingLogReview() {
                   />
                 </div>
                 <p className="mt-2 font-body-md text-xs text-outline">
-                  Nốt ruồi khai:{" "}
-                  {selected.intake.handMoles.length
-                    ? `vùng ${selected.intake.handMoles.join(", ")}`
-                    : "không có"}
+                  Nốt ruồi tay:{" "}
+                  {selected.intake.handMoleMode === "search"
+                    ? "không rõ — AI tự tìm"
+                    : selected.intake.handMoles.length
+                      ? `ô số ${selected.intake.handMoles.join(", ")}`
+                      : "không có"}
+                </p>
+              </div>
+            )}
+
+            {selected.faceMoleIntake && (
+              <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
+                <h4 className="mb-2 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                  <Icon name="face" className="text-[16px] text-gold/70" />
+                  NỐT RUỒI MẶT — NGƯỜI XEM KHAI
+                </h4>
+                <p className="font-body-md text-xs text-outline">
+                  {selected.faceMoleIntake.mode === "search"
+                    ? "Không rõ vị trí — AI tự tìm."
+                    : selected.faceMoleIntake.mode === "none"
+                      ? "Không có nốt ruồi."
+                      : `Vị trí số: ${selected.faceMoleIntake.positions.join(", ") || "—"}`}
                 </p>
               </div>
             )}

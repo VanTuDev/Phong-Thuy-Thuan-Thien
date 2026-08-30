@@ -320,12 +320,12 @@ export function refinePalmLines(
     const toRoi = ([x, y]: Pt): Pt => [(x * iw - sx) * scale, (y * ih - sy) * scale];
     const toNorm = ([x, y]: Pt): Pt => [(x / scale + sx) / iw, (y / scale + sy) / ih];
 
-    // mặt nạ lòng bàn tay (bao lồi vài mốc, nới 12%)
+    // mặt nạ lòng bàn tay (bao lồi vài mốc, nới rộng để không loại nhầm vùng rãnh)
     const hullIdx = [0, 1, 2, 5, 9, 13, 17];
     const cx = hullIdx.reduce((s, i) => s + landmarks[i][0], 0) / hullIdx.length;
     const cy = hullIdx.reduce((s, i) => s + landmarks[i][1], 0) / hullIdx.length;
     const maskPoly: Pt[] = hullIdx.map((i) =>
-      toRoi([cx + (landmarks[i][0] - cx) * 1.18, cy + (landmarks[i][1] - cy) * 1.18]),
+      toRoi([cx + (landmarks[i][0] - cx) * 1.4, cy + (landmarks[i][1] - cy) * 1.4]),
     );
     const inMask = (x: number, y: number) => pointInPoly(x, y, maskPoly);
 
@@ -333,9 +333,9 @@ export function refinePalmLines(
     const midRoi = toRoi(landmarks[9]);
     const palmLenPx = Math.hypot(midRoi[0] - wristRoi[0], midRoi[1] - wristRoi[1]) || w;
     const searchByLine: Record<PalmLineKey, number> = {
-      "path-life": palmLenPx * 0.1,
-      "path-head": palmLenPx * 0.09,
-      "path-heart": palmLenPx * 0.09,
+      "path-life": palmLenPx * 0.14,
+      "path-head": palmLenPx * 0.12,
+      "path-heart": palmLenPx * 0.12,
     };
 
     const outAnchors = { ...anchors };
@@ -354,10 +354,10 @@ export function refinePalmLines(
       const ty = b[1] - a[1];
       const nl = Math.hypot(tx, ty) || 1;
       const nrm: Pt = [-ty / nl, tx / nl];
-      const range = palmLenPx * 0.22;
+      const range = palmLenPx * 0.28;
       let bestOff = 0;
       let bestScore = -Infinity;
-      for (let off = -range; off <= range; off += 2) {
+      for (let off = -range; off <= range; off += 1.5) {
         let sum = 0;
         for (const [x, y] of poly) sum += bilinear(resp, w, h, x + nrm[0] * off, y + nrm[1] * off);
         if (sum > bestScore) {
@@ -369,12 +369,12 @@ export function refinePalmLines(
     };
 
     for (const key of LINE_KEYS) {
-      const base = coarseShift(resample(anchors[key], 24).map(toRoi));
+      const base = coarseShift(resample(anchors[key], 26).map(toRoi));
       const { pts, confidence } = snapLineToCrease(resp, w, h, base, {
         searchPx: searchByLine[key],
         inMask,
       });
-      if (confidence > 0.15) {
+      if (confidence > 0.13) {
         outAnchors[key] = pts.map(toNorm).map(
           ([x, y]) => [clamp(x, 0.01, 0.99), clamp(y, 0.01, 0.99)] as Pt,
         );
@@ -385,5 +385,143 @@ export function refinePalmLines(
     return { anchors: outAnchors, traced };
   } catch {
     return fallback;
+  }
+}
+
+// ── Tinh chỉnh polyline BẤT KỲ (vd đường Gemini dò thô) về nếp gấp thật ─────
+export interface LineSnapResult {
+  /** polyline đã bám nếp gấp (hoặc giữ nguyên nếu không đủ tin cậy), toạ độ 0..1 */
+  points: Pt[];
+  /** true nếu đã bám được rãnh thật */
+  traced: boolean;
+  confidence: number;
+}
+
+/**
+ * Nhận danh sách polyline THÔ (0..1) — thường do Gemini dò từ ảnh — và kéo từng
+ * đường về đúng nếp gấp tối trên ảnh. Không cần điểm mốc MediaPipe: ROI + mặt nạ
+ * suy từ chính các điểm đường (nới rộng). Dùng khi đã có ảnh + đường thô đủ tốt.
+ */
+export function refineLinesToCrease(
+  source: HTMLImageElement | HTMLCanvasElement | ImageBitmap,
+  lines: Record<string, Pt[]>,
+  landmarks?: Pt[] | null,
+): Record<string, LineSnapResult> {
+  const keys = Object.keys(lines);
+  const passthrough = (): Record<string, LineSnapResult> =>
+    Object.fromEntries(
+      keys.map((k) => [k, { points: lines[k], traced: false, confidence: 0 } as LineSnapResult]),
+    );
+  try {
+    if (typeof document === "undefined") return passthrough();
+    const iw =
+      "naturalWidth" in source ? source.naturalWidth : (source as HTMLCanvasElement | ImageBitmap).width;
+    const ih =
+      "naturalHeight" in source
+        ? source.naturalHeight
+        : (source as HTMLCanvasElement | ImageBitmap).height;
+    if (!iw || !ih) return passthrough();
+
+    // ROI: bao tất cả điểm đường (+ mốc nếu có), nới 14%.
+    const allPts: Pt[] = keys.flatMap((k) => lines[k]).concat(landmarks ?? []);
+    if (allPts.length < 6) return passthrough();
+    let minX = 1,
+      minY = 1,
+      maxX = 0,
+      maxY = 0;
+    for (const [x, y] of allPts) {
+      minX = Math.min(minX, x);
+      minY = Math.min(minY, y);
+      maxX = Math.max(maxX, x);
+      maxY = Math.max(maxY, y);
+    }
+    const padX = Math.max(0.04, (maxX - minX) * 0.14);
+    const padY = Math.max(0.04, (maxY - minY) * 0.14);
+    const sx = clamp((minX - padX) * iw, 0, iw - 1);
+    const sy = clamp((minY - padY) * ih, 0, ih - 1);
+    const sw = clamp((maxX + padX) * iw, 0, iw) - sx;
+    const sh = clamp((maxY + padY) * ih, 0, ih) - sy;
+    if (sw < 40 || sh < 40) return passthrough();
+
+    const scale = Math.min(1, MAX_ROI_EDGE / Math.max(sw, sh));
+    const w = Math.max(1, Math.round(sw * scale));
+    const h = Math.max(1, Math.round(sh * scale));
+
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+    if (!ctx) return passthrough();
+    ctx.drawImage(source, sx, sy, sw, sh, 0, 0, w, h);
+    const { data } = ctx.getImageData(0, 0, w, h);
+    const gray = new Float32Array(w * h);
+    for (let i = 0; i < gray.length; i++) {
+      gray[i] = (0.299 * data[i * 4] + 0.587 * data[i * 4 + 1] + 0.114 * data[i * 4 + 2]) / 255;
+    }
+    const resp = creaseResponse(gray, w, h, Math.max(w, h));
+
+    const toRoi = ([x, y]: Pt): Pt => [(x * iw - sx) * scale, (y * ih - sy) * scale];
+    const toNorm = ([x, y]: Pt): Pt => [(x / scale + sx) / iw, (y / scale + sy) / ih];
+
+    // mặt nạ rộng: bao lồi các điểm đường nới 30% (giữ đường không văng ra mép/ngón).
+    const maskSrc = keys.flatMap((k) => lines[k]);
+    const mcx = maskSrc.reduce((s, p) => s + p[0], 0) / maskSrc.length;
+    const mcy = maskSrc.reduce((s, p) => s + p[1], 0) / maskSrc.length;
+    const maskPoly = maskSrc.map((p) =>
+      toRoi([mcx + (p[0] - mcx) * 1.5, mcy + (p[1] - mcy) * 1.5] as Pt),
+    );
+    const inMask = (x: number, y: number) =>
+      x >= -2 && y >= -2 && x <= w + 2 && y <= h + 2 && pointInPoly(x, y, maskPoly);
+
+    // thước đo: đường chéo ROI
+    const diag = Math.hypot(w, h);
+    const searchPx = diag * 0.06;
+    const coarseRange = diag * 0.1;
+
+    const coarseShift = (poly: Pt[]): Pt[] => {
+      const m = Math.floor(poly.length / 2);
+      const a = poly[Math.max(0, m - 2)];
+      const b = poly[Math.min(poly.length - 1, m + 2)];
+      const tx = b[0] - a[0];
+      const ty = b[1] - a[1];
+      const nl = Math.hypot(tx, ty) || 1;
+      const nrm: Pt = [-ty / nl, tx / nl];
+      let bestOff = 0;
+      let bestScore = -Infinity;
+      for (let off = -coarseRange; off <= coarseRange; off += 1.5) {
+        let sum = 0;
+        for (const [x, y] of poly) sum += bilinear(resp, w, h, x + nrm[0] * off, y + nrm[1] * off);
+        if (sum > bestScore) {
+          bestScore = sum;
+          bestOff = off;
+        }
+      }
+      return poly.map(([x, y]) => [x + nrm[0] * bestOff, y + nrm[1] * bestOff]);
+    };
+
+    const out: Record<string, LineSnapResult> = {};
+    for (const key of keys) {
+      const src = lines[key];
+      if (!src || src.length < 3) {
+        out[key] = { points: src ?? [], traced: false, confidence: 0 };
+        continue;
+      }
+      const base = coarseShift(resample(src, 26).map(toRoi));
+      const { pts, confidence } = snapLineToCrease(resp, w, h, base, { searchPx, inMask });
+      if (confidence > 0.12) {
+        out[key] = {
+          points: pts
+            .map(toNorm)
+            .map(([x, y]) => [clamp(x, 0.01, 0.99), clamp(y, 0.01, 0.99)] as Pt),
+          traced: true,
+          confidence,
+        };
+      } else {
+        out[key] = { points: src, traced: false, confidence };
+      }
+    }
+    return out;
+  } catch {
+    return passthrough();
   }
 }
