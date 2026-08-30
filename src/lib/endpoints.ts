@@ -134,8 +134,19 @@ export interface Reading {
   intake?: PalmIntake | null;
   /** Trắc nghiệm nốt ruồi trên mặt (chỉ ở type "not-ruoi"). */
   faceMoleIntake?: FaceMoleIntake | null;
+  /** Hỏi–đáp thêm sau khi có kết quả (tối đa 2 câu hỏi). */
+  followups?: ReadingFollowup[];
   createdAt: string;
 }
+
+export interface ReadingFollowup {
+  role: "user" | "assistant";
+  content: string;
+  at: string;
+}
+
+/** Số câu hỏi tối đa người dùng được nhắn thêm sau mỗi lần luận giải. */
+export const MAX_READING_FOLLOWUPS = 2;
 
 export interface ChatCard {
   icon: string;
@@ -234,6 +245,11 @@ export const readings = {
   /** Ghi lại đường chỉ tay sau khi client bám nếp gấp thật (source → "cv"). */
   updateLines: (id: string, lines: { id: string; points: [number, number][] }[]) =>
     apiFetch<{ reading: Reading }>(`/readings/${id}/lines`, { method: "PATCH", body: { lines } }),
+  /** Hỏi thêm về một lần luận giải (tối đa 2 câu). */
+  chat: (id: string, message: string) =>
+    apiFetch<{ reading: Reading; reply: string; remaining: number }>(`/readings/${id}/chat`, {
+      body: { message },
+    }),
   list: (type?: ReadingType) =>
     apiFetch<{ readings: Reading[] }>(`/readings${type ? `?type=${type}` : ""}`),
 };

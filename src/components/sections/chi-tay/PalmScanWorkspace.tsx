@@ -16,6 +16,7 @@ import {
 import PalmIntakeForm from "@/components/sections/chi-tay/PalmIntakeForm";
 import { handLabel } from "@/lib/palmRegions";
 import HandMolePanel from "@/components/sections/chi-tay/HandMolePanel";
+import ReadingFollowupChat from "@/components/sections/chi-tay/ReadingFollowupChat";
 import type { PreparedImage } from "@/lib/image";
 import {
   catmullRom,
@@ -789,6 +790,10 @@ export default function PalmScanWorkspace() {
               )}
 
               {observation && <ObservationPanel obs={observation} />}
+
+              {reading && (
+                <ReadingFollowupChat reading={reading} onUpdated={(r) => setReading(r)} />
+              )}
 
               {(detection?.ok || manualMode) && (
                 <button
