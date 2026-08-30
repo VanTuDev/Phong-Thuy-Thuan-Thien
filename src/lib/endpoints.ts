@@ -331,6 +331,7 @@ export interface AdminUserStats {
   newToday: number;
   active: number;
   locked: number;
+  admins: number;
   activeRecently: number;
 }
 export interface AdminFinance {

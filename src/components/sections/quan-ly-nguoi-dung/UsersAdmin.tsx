@@ -5,8 +5,10 @@ import Image from "next/image";
 import Icon from "@/components/ui/Icon";
 import { ApiError } from "@/lib/api";
 import { admin, formatVnd, type AdminUserRow, type AdminUserStats } from "@/lib/endpoints";
+import { useSession } from "@/components/session/SessionProvider";
 
 export default function UsersAdmin() {
+  const { user: me } = useSession();
   const [rows, setRows] = useState<AdminUserRow[] | null>(null);
   const [stats, setStats] = useState<AdminUserStats | null>(null);
   const [q, setQ] = useState("");
@@ -55,10 +57,29 @@ export default function UsersAdmin() {
     }
   };
 
+  const toggleAdmin = async (row: AdminUserRow) => {
+    const grant = !row.isAdmin;
+    const ok = window.confirm(
+      grant
+        ? `Cấp quyền QUẢN TRỊ cho "${row.name}" (${row.email})?\nHọ sẽ truy cập được toàn bộ trang quản trị.`
+        : `Thu hồi quyền quản trị của "${row.name}"?`,
+    );
+    if (!ok) return;
+    setPendingId(row.id);
+    try {
+      await admin.updateUser(row.id, { isAdmin: grant });
+      await load();
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Không đổi được quyền quản trị.");
+    } finally {
+      setPendingId(null);
+    }
+  };
+
   const statCards = stats
     ? [
         { label: "TỔNG NGƯỜI DÙNG", value: stats.total, icon: "groups" },
-        { label: "MỚI HÔM NAY", value: stats.newToday, icon: "person_add" },
+        { label: "QUẢN TRỊ VIÊN", value: stats.admins, icon: "shield_person" },
         { label: "ĐANG HOẠT ĐỘNG", value: stats.active, icon: "monitoring" },
         { label: "HOẠT ĐỘNG 24H QUA", value: stats.activeRecently, icon: "bolt" },
       ]
@@ -203,6 +224,29 @@ export default function UsersAdmin() {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-1">
+                        <button
+                          type="button"
+                          onClick={() => toggleAdmin(u)}
+                          disabled={pendingId === u.id || u.id === me?.id}
+                          title={
+                            u.id === me?.id
+                              ? "Không thể tự đổi quyền của mình"
+                              : u.isAdmin
+                                ? "Thu hồi quyền quản trị"
+                                : "Cấp quyền quản trị"
+                          }
+                          className={`press rounded p-1.5 transition-colors disabled:opacity-30 ${
+                            u.isAdmin
+                              ? "text-gold hover:text-error"
+                              : "text-on-surface-variant hover:text-gold"
+                          }`}
+                        >
+                          <Icon
+                            name={u.isAdmin ? "shield_person" : "add_moderator"}
+                            filled={u.isAdmin}
+                            className="text-[18px]"
+                          />
+                        </button>
                         <button
                           type="button"
                           onClick={() => grantCredit(u, "chiTay")}
