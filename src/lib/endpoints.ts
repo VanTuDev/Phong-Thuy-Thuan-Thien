@@ -250,6 +250,8 @@ export interface PalmHint {
   intake?: PalmIntake;
   /** "ai" = chế độ AI đọc sâu (thinking + luận chi tiết); mặc định "manual" */
   mode?: "manual" | "ai";
+  /** true nếu đầu các ngón tay bị cắt khỏi khung → không luận độ dài/độ hở ngón tay */
+  fingersCropped?: boolean;
 }
 
 export const readings = {

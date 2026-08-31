@@ -35,6 +35,8 @@ export interface PalmDetection {
   traced?: Record<PalmLineKey, boolean>;
   /** số đo ngón tay / hình bàn tay (tất định từ điểm mốc) */
   metrics?: HandMetrics;
+  /** true nếu đầu các ngón tay bị cắt khỏi khung hình (không đủ dữ liệu để luận ngón tay) */
+  fingersCropped?: boolean;
 }
 
 export type { HandMetrics } from "./handMetrics.ts";
@@ -299,6 +301,12 @@ export async function detectPalm(
   }
 
   const handedness = res.handedness?.[0]?.[0]?.categoryName as "Left" | "Right" | undefined;
+
+  // Đầu ngón tay bị crop khỏi khung: MediaPipe đặt điểm mốc đầu ngón ở/ra ngoài
+  // mép ảnh (bàn tay hướng ngón lên trên → y nhỏ). Không đủ để luận độ dài/độ hở ngón.
+  const tipYs = [4, 8, 12, 16, 20].map((i) => lm[i]?.[1] ?? 1);
+  const fingersCropped = box.y <= 0.02 || Math.min(...tipYs) <= 0.02;
+
   const anchors = computeAnchors(lm);
   let metrics: HandMetrics | undefined;
   try {
@@ -315,7 +323,7 @@ export async function detectPalm(
     traced = refined.traced;
   }
 
-  return { ok: true, landmarks: lm, handedness, box, anchors, traced, metrics };
+  return { ok: true, landmarks: lm, handedness, box, anchors, traced, metrics, fingersCropped };
 }
 
 /** Bộ khung nối các điểm mốc để vẽ preview (cặp chỉ số). */

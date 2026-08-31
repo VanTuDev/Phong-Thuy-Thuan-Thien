@@ -258,6 +258,7 @@ export default function PalmScanWorkspace() {
         hint = {
           landmarks: detection?.landmarks,
           metrics: detection?.metrics,
+          fingersCropped: detection?.fingersCropped,
           mode: "ai",
         };
       } else if (workLines) {
@@ -274,6 +275,7 @@ export default function PalmScanWorkspace() {
               ? LINE_KEYS.filter((id) => detection.traced?.[id] && !editedIds.has(id))
               : undefined,
           metrics: detection?.metrics,
+          fingersCropped: detection?.fingersCropped,
         };
       } else if (detection?.ok) {
         hint = {
@@ -283,6 +285,7 @@ export default function PalmScanWorkspace() {
             ? LINE_KEYS.filter((id) => detection.traced?.[id])
             : undefined,
           metrics: detection.metrics,
+          fingersCropped: detection.fingersCropped,
         };
       }
       if (intake) hint = { ...(hint ?? {}), intake };
@@ -831,7 +834,7 @@ export default function PalmScanWorkspace() {
                 </div>
               )}
 
-              {observation?.fingers?.visible === false && (
+              {(observation?.fingers?.visible === false || detection?.fingersCropped) && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-gold/25 bg-gold/[0.05] p-4 motion-safe:animate-fade-in-up">
                   <Icon name="crop_free" className="mt-0.5 shrink-0 text-[15px] text-gold/70" />
                   <p className="font-body-md text-[13px] leading-relaxed text-on-surface-variant">
@@ -841,9 +844,11 @@ export default function PalmScanWorkspace() {
                 </div>
               )}
 
-              {observation?.fingers?.visible !== false && (result.hand ?? detection?.metrics) && (
-                <PalmMetricsPanel metrics={(result.hand ?? detection?.metrics)!} />
-              )}
+              {observation?.fingers?.visible !== false &&
+                !detection?.fingersCropped &&
+                (result.hand ?? detection?.metrics) && (
+                  <PalmMetricsPanel metrics={(result.hand ?? detection?.metrics)!} />
+                )}
 
               {observation && <ObservationPanel obs={observation} />}
 
