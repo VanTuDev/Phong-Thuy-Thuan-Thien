@@ -831,7 +831,17 @@ export default function PalmScanWorkspace() {
                 </div>
               )}
 
-              {(result.hand ?? detection?.metrics) && (
+              {observation?.fingers?.visible === false && (
+                <div className="flex items-start gap-2.5 rounded-xl border border-gold/25 bg-gold/[0.05] p-4 motion-safe:animate-fade-in-up">
+                  <Icon name="crop_free" className="mt-0.5 shrink-0 text-[15px] text-gold/70" />
+                  <p className="font-body-md text-[13px] leading-relaxed text-on-surface-variant">
+                    Ảnh chưa lấy trọn các ngón tay nên phần luận về độ dài / độ hở ngón tay được bỏ qua.
+                    Lần sau hãy chụp thấy đủ cả 5 ngón và cổ tay để luận đầy đủ hơn.
+                  </p>
+                </div>
+              )}
+
+              {observation?.fingers?.visible !== false && (result.hand ?? detection?.metrics) && (
                 <PalmMetricsPanel metrics={(result.hand ?? detection?.metrics)!} />
               )}
 
