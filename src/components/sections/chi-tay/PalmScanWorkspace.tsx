@@ -791,6 +791,15 @@ export default function PalmScanWorkspace() {
                 <HandMolePanel readings={result.moleReadings} observed={observation?.moles} />
               )}
 
+              {(!result.moleReadings || result.moleReadings.length === 0) && result.moleNote && (
+                <div className="flex items-start gap-2.5 rounded-xl border border-white/5 bg-surface-container-lowest p-4 motion-safe:animate-fade-in-up">
+                  <Icon name="spa" className="mt-0.5 shrink-0 text-[15px] text-gold/50" />
+                  <p className="font-body-md text-[13px] leading-relaxed text-on-surface-variant">
+                    {result.moleNote}
+                  </p>
+                </div>
+              )}
+
               {(result.hand ?? detection?.metrics) && (
                 <PalmMetricsPanel metrics={(result.hand ?? detection?.metrics)!} />
               )}

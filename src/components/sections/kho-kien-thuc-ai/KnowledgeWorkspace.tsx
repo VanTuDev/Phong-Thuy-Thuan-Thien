@@ -189,8 +189,13 @@ export default function KnowledgeWorkspace() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder={PLACEHOLDER[tab]}
-            className="min-h-[200px] flex-1 resize-none border-0 border-b border-white/10 bg-transparent pb-4 font-body-md text-body-md text-on-surface outline-none transition-colors focus:border-gold placeholder:text-on-surface-variant/30"
+            spellCheck={false}
+            className="min-h-[440px] flex-1 resize-y whitespace-pre-wrap rounded-lg border border-white/10 bg-surface-container/50 p-4 font-body-md text-[15px] leading-relaxed text-on-surface outline-none transition-colors focus:border-gold/60 placeholder:text-on-surface-variant/30"
           />
+          <p className="mt-2 flex items-center gap-1.5 font-body-md text-[11px] text-outline">
+            <Icon name="format_align_left" className="text-[13px]" />
+            Xuống dòng, cách dòng, gạch đầu dòng đều được giữ nguyên — AI đọc theo đúng bố cục bạn nhập. Kéo góc dưới để mở rộng ô.
+          </p>
           <div className="mt-4 flex justify-end">
             <button
               type="button"
@@ -403,7 +408,7 @@ function DocModal({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <button type="button" className="absolute inset-0 cursor-default bg-background/70 backdrop-blur-sm" aria-label="Đóng" onClick={onClose} />
-      <div className="relative z-10 flex max-h-[85vh] w-full max-w-2xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low motion-safe:animate-scale-in">
+      <div className="relative z-10 flex max-h-[88vh] w-full max-w-3xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low motion-safe:animate-scale-in">
         <div className="flex items-center justify-between border-b border-white/10 px-6 py-4">
           <div className="flex min-w-0 items-center gap-3">
             <Icon name={doc.icon} className="shrink-0 text-[20px] text-gold" />
@@ -459,8 +464,9 @@ function DocModal({
                   <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    className={`mt-1.5 w-full resize-y rounded-lg border border-white/10 bg-surface-container px-4 py-3 font-body-md text-sm text-white outline-none focus:border-gold/60 ${
-                      isImage ? "min-h-[100px]" : "min-h-[240px]"
+                    spellCheck={false}
+                    className={`mt-1.5 w-full resize-y whitespace-pre-wrap rounded-lg border border-white/10 bg-surface-container px-4 py-3 font-body-md text-[15px] leading-relaxed text-white outline-none focus:border-gold/60 ${
+                      isImage ? "min-h-[110px]" : "min-h-[440px]"
                     }`}
                   />
                 </label>
@@ -501,7 +507,7 @@ function DocModal({
               </a>
             </div>
           ) : doc.text || doc.hasText ? (
-            <pre className="whitespace-pre-wrap break-words font-body-md text-sm leading-relaxed text-on-surface">
+            <pre className="max-h-[62vh] overflow-y-auto whitespace-pre-wrap break-words rounded-lg border border-white/5 bg-surface-container/40 p-4 font-body-md text-[14px] leading-relaxed text-on-surface">
               {doc.text || "(đang tải nội dung…)"}
             </pre>
           ) : (

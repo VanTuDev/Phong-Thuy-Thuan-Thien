@@ -57,6 +57,13 @@ export default function ReadingFollowupChat({
       <p className="mb-3 font-body-md text-xs text-outline">
         AI trả lời dựa trên chính bản luận giải này và kho tri thức của chuyên gia. Tối đa{" "}
         {MAX_READING_FOLLOWUPS} câu hỏi, không tốn lượt xem.
+        {reading.type === "chi-tay" && (
+          <>
+            {" "}
+            Có nốt ruồi mà ảnh chưa hiện rõ? Nhắn kèm vị trí (ví dụ &ldquo;gần gốc ngón út&rdquo;) — Thuận
+            Thiên sẽ soi lại ảnh bàn tay của bạn.
+          </>
+        )}
       </p>
 
       {thread.length > 0 && (
@@ -107,7 +114,11 @@ export default function ReadingFollowupChat({
             }}
             rows={2}
             maxLength={500}
-            placeholder="Ví dụ: Đường công danh của tôi có ý nghĩa gì thêm không?"
+            placeholder={
+              reading.type === "chi-tay"
+                ? "Ví dụ: Tôi có nốt ruồi ở gần gốc ngón út, nó nói lên điều gì?"
+                : "Ví dụ: Nốt ruồi ở cung này còn ý nghĩa nào khác không?"
+            }
             disabled={!canAsk}
             className="min-h-[44px] flex-1 resize-none rounded-lg border border-white/15 bg-surface-container-lowest/70 px-3 py-2 font-body-md text-sm text-on-surface outline-none transition-colors focus:border-gold/60 disabled:opacity-50"
           />

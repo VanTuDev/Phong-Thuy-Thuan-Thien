@@ -85,6 +85,8 @@ export interface PalmResult {
   handNarrative?: string;
   /** luận giải nốt ruồi trên bàn tay theo vùng người dùng khai */
   moleReadings?: PalmMoleReading[];
+  /** ghi chú khi không có nốt ruồi để luận (AI quét không thấy / người xem khai không có) */
+  moleNote?: string;
   subject?: PalmSubject | null;
 }
 
