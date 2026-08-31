@@ -82,8 +82,8 @@ export default function PalmScanWorkspace() {
   const [detection, setDetection] = useState<PalmDetection | null>(null);
   const [detectorDown, setDetectorDown] = useState(false);
 
-  // Chế độ luận giải: "manual" = tự chỉnh đường · "ai" = AI đọc sâu, không chỉnh
-  const [readMode, setReadMode] = useState<"manual" | "ai">("manual");
+  // Chế độ luận giải: "ai" = AI đọc sâu (MẶC ĐỊNH, ưu tiên) · "manual" = tự chỉnh đường
+  const [readMode, setReadMode] = useState<"manual" | "ai">("ai");
 
   // Chỉnh / đồ lại đường chỉ tay
   const [editMode, setEditMode] = useState(false);
@@ -134,6 +134,7 @@ export default function PalmScanWorkspace() {
     setWorkLines(null);
     setEditedIds(new Set());
     setRedraw(null);
+    setReadMode("ai"); // mỗi ảnh mới bắt đầu ở chế độ AI (ưu tiên)
   };
 
   const startManual = () => {
@@ -423,8 +424,8 @@ export default function PalmScanWorkspace() {
                   <div className="grid grid-cols-2 gap-2">
                     {(
                       [
+                        { key: "ai", icon: "neurology", label: "AI đọc sâu", sub: "Mặc định — AI tự đọc & luận kỹ" },
                         { key: "manual", icon: "draw", label: "Thủ công", sub: "Tự chỉnh đường chỉ tay" },
-                        { key: "ai", icon: "neurology", label: "AI đọc sâu", sub: "AI tự đọc & luận kỹ" },
                       ] as const
                     ).map((m) => (
                       <button
