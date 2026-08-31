@@ -4,6 +4,7 @@ import { useState } from "react";
 import Icon from "@/components/ui/Icon";
 import MolePicker, { type MolePickValue } from "@/components/ui/MolePicker";
 import { handLabel, moleHand, HAND_CHART_IMG, HAND_MOLE_ZONES } from "@/lib/palmRegions";
+import { HAND_MOLE_MAP } from "@/lib/palmMoleMap";
 import type { PalmIntake } from "@/lib/endpoints";
 
 const FIELD =
@@ -172,6 +173,7 @@ export default function PalmIntakeForm({
           where="bàn tay"
           value={mole}
           onChange={setMole}
+          zones={HAND_MOLE_MAP}
         />
       </div>
 
