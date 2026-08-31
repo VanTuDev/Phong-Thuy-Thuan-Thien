@@ -14,8 +14,9 @@ export default function KhoKienThucAiPage() {
           giải Chỉ tay / Nốt ruồi và khi hỏi thêm, AI dùng nó làm nền nhưng <b>diễn đạt lại bằng lời
           khác</b>, áp vào từng trường hợp: người dùng hiểu được ý nghĩa nhưng <b>không thấy và không
           suy ngược ra nội dung gốc</b>. AI không trích nguyên văn, không nhắc tới việc có tài liệu.
-          Chỗ nào chưa có cơ sở → trả lời &ldquo;cần xem trực tiếp, nhắn Zalo&rdquo;. Hiện chỉ trích
-          được <b>văn bản</b> từ ghi chú nhập tay và tệp .txt / .md / .docx — PDF và ảnh chưa đọc được.
+          Chỗ nào chưa có cơ sở → trả lời &ldquo;cần xem trực tiếp, nhắn Zalo&rdquo;. Trích được
+          <b>văn bản</b> từ ghi chú nhập tay và tệp .txt / .md / .docx; <b>ảnh</b> thì AI xem trực
+          tiếp bức hình kèm chú thích bạn nhập (nên thêm chú thích để AI hiểu đúng) — riêng PDF chưa đọc được.
         </p>
       </header>
       <KnowledgeWorkspace />

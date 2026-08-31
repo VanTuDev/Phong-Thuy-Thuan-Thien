@@ -26,9 +26,7 @@ export default function HandMolePanel({
           return (
             <li key={r.region} className="rounded-lg border border-white/5 bg-surface-container-lowest/60 p-3.5">
               <div className="mb-1 flex items-center gap-2">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold font-data-mono text-[11px] text-on-gold">
-                  {r.region}
-                </span>
+                <Icon name="spa" className="shrink-0 text-[15px] text-gold/60" />
                 <span className="font-headline-md text-[16px] text-on-surface">{r.name}</span>
                 {seen === false && (
                   <span className="font-data-mono text-[10px] text-outline">· AI chưa thấy rõ trên ảnh</span>
@@ -40,7 +38,7 @@ export default function HandMolePanel({
         })}
       </ul>
       <p className="mt-3 font-body-md text-[11px] text-outline">
-        Luận giải theo cung vị bạn tự khai — mang tính tham khảo, gợi mở.
+        Luận giải theo vị trí trên lòng bàn tay — mang tính tham khảo, gợi mở.
       </p>
     </div>
   );

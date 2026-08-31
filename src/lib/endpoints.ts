@@ -307,8 +307,10 @@ export const knowledge = {
   get: (id: string) => apiFetch<{ document: KnowledgeDoc }>(`/knowledge/${id}`),
   addText: (category: ReadingType, text: string, name?: string) =>
     apiFetch<{ document: KnowledgeDoc }>("/knowledge", { body: { category, text, name } }),
-  addFile: (category: ReadingType, filename: string, fileBase64: string) =>
-    apiFetch<{ document: KnowledgeDoc }>("/knowledge", { body: { category, filename, fileBase64 } }),
+  addFile: (category: ReadingType, filename: string, fileBase64: string, text?: string) =>
+    apiFetch<{ document: KnowledgeDoc }>("/knowledge", {
+      body: { category, filename, fileBase64, text },
+    }),
   update: (id: string, patch: { name?: string; text?: string; category?: ReadingType }) =>
     apiFetch<{ document: KnowledgeDoc }>(`/knowledge/${id}`, { method: "PATCH", body: patch }),
   remove: (id: string) => apiFetch(`/knowledge/${id}`, { method: "DELETE" }),

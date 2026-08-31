@@ -31,6 +31,7 @@ export default function KnowledgeWorkspace() {
   const [docs, setDocs] = useState<KnowledgeDoc[] | null>(null);
   const [text, setText] = useState("");
   const [name, setName] = useState("");
+  const [fileNote, setFileNote] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -81,7 +82,8 @@ export default function KnowledgeWorkspace() {
     setBusy(true);
     setError(null);
     try {
-      await knowledge.addFile(tab, file.name, await fileToDataUrl(file));
+      await knowledge.addFile(tab, file.name, await fileToDataUrl(file), fileNote.trim() || undefined);
+      setFileNote("");
       await load();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Tải tệp thất bại.");
@@ -142,6 +144,13 @@ export default function KnowledgeWorkspace() {
       )}
 
       <section className="mb-section-gap grid grid-cols-12 gap-gutter">
+        <div className="col-span-12 flex flex-col gap-3 lg:col-span-5">
+        <input
+          value={fileNote}
+          onChange={(e) => setFileNote(e.target.value)}
+          placeholder="Chú thích cho tệp sắp tải (tùy chọn) — ảnh kèm chú thích sẽ được AI xem khi luận giải"
+          className="w-full rounded-lg border border-white/10 bg-surface-container-low px-4 py-2.5 font-body-md text-[13px] text-on-surface outline-none transition-colors focus:border-gold/60 placeholder:text-on-surface-variant/30"
+        />
         <div
           onClick={() => !busy && fileRef.current?.click()}
           onDragOver={(e) => e.preventDefault()}
@@ -149,7 +158,7 @@ export default function KnowledgeWorkspace() {
             e.preventDefault();
             void uploadFile(e.dataTransfer.files?.[0]);
           }}
-          className="group relative col-span-12 flex min-h-[320px] cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low p-8 transition-colors duration-500 hover:border-gold/40 lg:col-span-5"
+          className="group relative flex min-h-[300px] flex-1 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border border-white/10 bg-surface-container-low p-8 transition-colors duration-500 hover:border-gold/40"
         >
           <div className="pointer-events-none absolute inset-0 bg-gold/5 opacity-40 blur-3xl transition-opacity duration-700 group-hover:opacity-100" />
           <div className="relative flex h-40 w-40 flex-col items-center justify-center rounded-full border border-dashed border-gold/20 transition-colors group-hover:border-gold/50 sm:h-52 sm:w-52">
@@ -162,6 +171,7 @@ export default function KnowledgeWorkspace() {
             </span>
           </div>
           <input ref={fileRef} type="file" accept={ACCEPT} className="hidden" onChange={(e) => void uploadFile(e.target.files?.[0])} />
+        </div>
         </div>
 
         <div className="col-span-12 flex flex-col rounded-2xl border border-white/10 bg-surface-container-low p-6 sm:p-8 lg:col-span-7">
@@ -255,8 +265,15 @@ export default function KnowledgeWorkspace() {
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-surface-variant px-2.5 py-1 font-label-caps text-[10px] text-on-surface-variant">
                         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold/50" /> Đang xử lý
                       </span>
-                    ) : doc.hasText ? (
-                      <span className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 px-2.5 py-1 font-label-caps text-[10px] text-gold" title="Nội dung được đưa vào ngữ cảnh Gemini">
+                    ) : doc.hasText || doc.type === "Image" ? (
+                      <span
+                        className="inline-flex items-center gap-1.5 rounded-full border border-gold/30 px-2.5 py-1 font-label-caps text-[10px] text-gold"
+                        title={
+                          doc.type === "Image"
+                            ? "Ảnh được gửi cho AI khi luận giải (kèm chú thích nếu có)"
+                            : "Nội dung được đưa vào ngữ cảnh Gemini"
+                        }
+                      >
                         <Icon name="auto_awesome" className="text-[11px]" /> Có
                       </span>
                     ) : (
@@ -339,7 +356,8 @@ function DocModal({
   onClose: () => void;
   onSaved: () => void;
 }) {
-  const editable = doc.source === "inline" || doc.type === "Text";
+  const editable = doc.source === "inline" || doc.type === "Text" || doc.type === "Image";
+  const isImage = doc.type === "Image";
   const [name, setName] = useState(doc.name);
   const [category, setCategory] = useState<ReadingType>(doc.category);
   const [text, setText] = useState(doc.text ?? "");
@@ -425,13 +443,25 @@ function DocModal({
               </label>
               {editable ? (
                 <label className="block">
+                  {isImage && fileUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={fileUrl}
+                      alt={doc.name}
+                      className="mb-3 max-h-[36vh] rounded-lg border border-white/10"
+                    />
+                  )}
                   <span className="font-label-caps text-label-caps text-on-surface-variant">
-                    Nội dung (đưa vào ngữ cảnh Gemini)
+                    {isImage
+                      ? "Chú thích cho ảnh (AI xem ảnh này kèm chú thích khi luận giải)"
+                      : "Nội dung (đưa vào ngữ cảnh Gemini)"}
                   </span>
                   <textarea
                     value={text}
                     onChange={(e) => setText(e.target.value)}
-                    className="mt-1.5 min-h-[240px] w-full resize-y rounded-lg border border-white/10 bg-surface-container px-4 py-3 font-body-md text-sm text-white outline-none focus:border-gold/60"
+                    className={`mt-1.5 w-full resize-y rounded-lg border border-white/10 bg-surface-container px-4 py-3 font-body-md text-sm text-white outline-none focus:border-gold/60 ${
+                      isImage ? "min-h-[100px]" : "min-h-[240px]"
+                    }`}
                   />
                 </label>
               ) : (
@@ -442,8 +472,21 @@ function DocModal({
               )}
             </div>
           ) : doc.type === "Image" && fileUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={fileUrl} alt={doc.name} className="mx-auto max-h-[60vh] rounded-lg border border-white/10" />
+            <div className="space-y-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={fileUrl} alt={doc.name} className="mx-auto max-h-[55vh] rounded-lg border border-white/10" />
+              {doc.text ? (
+                <p className="rounded-lg border border-gold/20 bg-gold/[0.04] px-4 py-3 text-sm text-on-surface">
+                  <span className="font-label-caps text-[10px] text-gold/70">Chú thích cho AI</span>
+                  <br />
+                  {doc.text}
+                </p>
+              ) : (
+                <p className="text-center text-xs text-outline">
+                  Chưa có chú thích — bấm “Sửa” để thêm mô tả giúp AI hiểu ảnh này.
+                </p>
+              )}
+            </div>
           ) : doc.type === "PDF" && fileUrl ? (
             <div className="flex flex-col items-center gap-4 py-10 text-center">
               <Icon name="picture_as_pdf" className="text-5xl text-gold/60" />
