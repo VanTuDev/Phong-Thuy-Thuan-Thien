@@ -60,8 +60,8 @@ export default function ReadingFollowupChat({
         {reading.type === "chi-tay" && (
           <>
             {" "}
-            Có nốt ruồi mà ảnh chưa hiện rõ? Nhắn kèm vị trí (ví dụ &ldquo;gần gốc ngón út&rdquo;) — Thuận
-            Thiên sẽ soi lại ảnh bàn tay của bạn.
+            Muốn hỏi thêm về một vùng cụ thể trên lòng bàn tay? Nhắn kèm vị trí (ví dụ &ldquo;gần gốc
+            ngón út&rdquo;) — Thuận Thiên sẽ soi lại ảnh bàn tay của bạn.
           </>
         )}
       </p>
@@ -116,7 +116,7 @@ export default function ReadingFollowupChat({
             maxLength={500}
             placeholder={
               reading.type === "chi-tay"
-                ? "Ví dụ: Tôi có nốt ruồi ở gần gốc ngón út, nó nói lên điều gì?"
+                ? "Ví dụ: Vùng gần gốc ngón út trên lòng bàn tay nói lên điều gì?"
                 : "Ví dụ: Nốt ruồi ở cung này còn ý nghĩa nào khác không?"
             }
             disabled={!canAsk}

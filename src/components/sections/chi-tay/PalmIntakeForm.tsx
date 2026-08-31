@@ -72,8 +72,8 @@ export default function PalmIntakeForm({
       <header>
         <h3 className="font-headline-md text-[19px] text-white sm:text-headline-md">Trước khi bắt đầu</h3>
         <p className="mt-1 font-body-md text-xs text-on-surface-variant sm:text-sm">
-          Vài thông tin giúp Thuận Thiên luận giải sát với bạn hơn: tuổi, giới tính và nốt ruồi
-          trên tay.
+          Vài thông tin giúp Thuận Thiên luận giải sát với bạn hơn: tuổi, giới tính và các điểm
+          cần lưu ý trên lòng bàn tay.
         </p>
       </header>
 
@@ -161,19 +161,20 @@ export default function PalmIntakeForm({
         )}
       </div>
 
-      {/* Nốt ruồi trên tay */}
+      {/* Điểm cần lưu ý trên lòng bàn tay */}
       <div>
         <span className="mb-1.5 block font-label-caps text-[11px] text-on-surface-variant sm:text-label-caps">
-          Nốt ruồi trên lòng bàn tay
+          Điểm cần lưu ý trên lòng bàn tay (nếu có)
         </span>
         <MolePicker
           chartSrc={HAND_CHART_IMG}
-          chartAlt="Sơ đồ 50 ô nốt ruồi trên lòng bàn tay"
+          chartAlt="Sơ đồ 50 vùng trên lòng bàn tay"
           count={HAND_MOLE_ZONES}
-          where="bàn tay"
+          where="lòng bàn tay"
           value={mole}
           onChange={setMole}
           zones={HAND_MOLE_MAP}
+          hideMoleWord
         />
       </div>
 

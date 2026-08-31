@@ -126,9 +126,9 @@ export default function HistoryList() {
                 <p className="mt-1 font-data-mono text-[11px] text-outline">
                   tay {entry.intake.hand === "trai" ? "trái" : "phải"}
                   {entry.intake.handMoleMode === "search"
-                    ? " · nốt ruồi: AI tìm"
+                    ? " · AI tự xem"
                     : entry.intake.handMoles.length
-                      ? ` · nốt ruồi ô ${entry.intake.handMoles.join(", ")}`
+                      ? ` · đã đánh dấu ${entry.intake.handMoles.length} điểm`
                       : ""}
                 </p>
               )}

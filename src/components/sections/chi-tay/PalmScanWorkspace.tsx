@@ -331,9 +331,9 @@ export default function PalmScanWorkspace() {
                   <Icon name="person" className="text-[16px] text-gold/70" />
                   {intake.name} · tay {handLabel(intake.hand)}
                   {intake.handMoleMode === "search"
-                    ? " · nốt ruồi: AI tìm"
+                    ? " · AI tự xem"
                     : intake.handMoles.length > 0
-                      ? ` · nốt ruồi ô ${intake.handMoles.join(", ")}`
+                      ? ` · đã đánh dấu ${intake.handMoles.length} điểm`
                       : ""}
                 </span>
                 <button
@@ -792,16 +792,7 @@ export default function PalmScanWorkspace() {
               )}
 
               {result.moleReadings && result.moleReadings.length > 0 && (
-                <HandMolePanel readings={result.moleReadings} observed={observation?.moles} />
-              )}
-
-              {(!result.moleReadings || result.moleReadings.length === 0) && result.moleNote && (
-                <div className="flex items-start gap-2.5 rounded-xl border border-white/5 bg-surface-container-lowest p-4 motion-safe:animate-fade-in-up">
-                  <Icon name="spa" className="mt-0.5 shrink-0 text-[15px] text-gold/50" />
-                  <p className="font-body-md text-[13px] leading-relaxed text-on-surface-variant">
-                    {result.moleNote}
-                  </p>
-                </div>
+                <HandMolePanel readings={result.moleReadings} />
               )}
 
               {result.fingerNote && (

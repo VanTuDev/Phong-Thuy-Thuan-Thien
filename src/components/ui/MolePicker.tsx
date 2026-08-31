@@ -24,15 +24,33 @@ interface Props {
    * chấm bấm được ĐÚNG vị trí trên ảnh thay vì bảng số rời. Hiện chỉ bàn tay có.
    */
   zones?: HandMoleZone[];
+  /** true (lòng bàn tay): KHÔNG dùng từ "nốt ruồi" trong nhãn — gọi là "điểm cần lưu ý". */
+  hideMoleWord?: boolean;
 }
 
-const MODES: { id: MoleMode; label: string; icon: string; hint: string }[] = [
+const MODES_MOLE: { id: MoleMode; label: string; icon: string; hint: string }[] = [
   { id: "search", label: "Để AI tự tìm", icon: "auto_awesome", hint: "AI quét ảnh, tự xác định vị trí nốt ruồi" },
   { id: "declared", label: "Tôi tự chấm vị trí", icon: "touch_app", hint: "Chấm vị trí có nốt ruồi trên sơ đồ" },
   { id: "none", label: "Không có nốt ruồi", icon: "block", hint: "Bỏ qua phần nốt ruồi" },
 ];
+const MODES_PALM: { id: MoleMode; label: string; icon: string; hint: string }[] = [
+  { id: "search", label: "Để AI tự xem", icon: "auto_awesome", hint: "AI tự quan sát lòng bàn tay" },
+  { id: "declared", label: "Tôi tự đánh dấu", icon: "touch_app", hint: "Đánh dấu điểm cần lưu ý trên sơ đồ" },
+  { id: "none", label: "Không có", icon: "block", hint: "Bỏ qua phần này" },
+];
 
-export default function MolePicker({ chartSrc, chartAlt, count, where, value, onChange, zones }: Props) {
+export default function MolePicker({
+  chartSrc,
+  chartAlt,
+  count,
+  where,
+  value,
+  onChange,
+  zones,
+  hideMoleWord,
+}: Props) {
+  const MODES = hideMoleWord ? MODES_PALM : MODES_MOLE;
+  const noun = hideMoleWord ? "điểm cần lưu ý" : "nốt ruồi";
   const [zoom, setZoom] = useState(false);
   const [useGrid, setUseGrid] = useState(false);
 
@@ -82,7 +100,7 @@ export default function MolePicker({ chartSrc, chartAlt, count, where, value, on
         <div>
           <div className="mb-1.5 flex items-center justify-between">
             <span className="font-label-caps text-[11px] text-on-surface-variant">
-              Bấm vào ô có nốt ruồi trên {where}
+              Bấm vào ô có {noun} trên {where}
             </span>
             <span className="font-data-mono text-[11px] text-gold">Đã chọn: {value.positions.length}</span>
           </div>
@@ -179,7 +197,7 @@ export default function MolePicker({ chartSrc, chartAlt, count, where, value, on
             <div>
               <div className="mb-1.5 flex items-center justify-between">
                 <span className="font-label-caps text-[11px] text-on-surface-variant">
-                  Chấm số ô có nốt ruồi ({count} vị trí)
+                  Chấm số ô có {noun} ({count} vị trí)
                 </span>
                 <span className="font-data-mono text-[11px] text-gold">
                   Đã chọn: {value.positions.length}
@@ -232,13 +250,13 @@ export default function MolePicker({ chartSrc, chartAlt, count, where, value, on
       {value.mode === "search" && (
         <p className="flex items-start gap-2 rounded-lg border border-white/10 bg-surface-container-lowest/60 px-3 py-2 font-body-md text-[12px] text-on-surface-variant">
           <Icon name="auto_awesome" className="mt-0.5 shrink-0 text-[15px] text-gold/70" />
-          AI sẽ tự quét ảnh {where}, tìm các nốt ruồi rõ nhất và luận giải theo vị trí.
+          AI sẽ tự quan sát ảnh {where} và luận giải theo từng vùng.
         </p>
       )}
       {value.mode === "none" && (
         <p className="flex items-start gap-2 rounded-lg border border-white/10 bg-surface-container-lowest/60 px-3 py-2 font-body-md text-[12px] text-on-surface-variant">
           <Icon name="info" className="mt-0.5 shrink-0 text-[15px] text-outline" />
-          Sẽ bỏ qua phần luận giải nốt ruồi trên {where}.
+          Sẽ bỏ qua phần luận giải theo vùng trên {where}.
         </p>
       )}
 

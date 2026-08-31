@@ -83,9 +83,9 @@ export interface PalmResult {
   aiDeep?: boolean;
   /** mô tả tổng quan bàn tay: ngón tay, độ hở, hình bàn tay (chế độ AI đọc sâu) */
   handNarrative?: string;
-  /** luận giải nốt ruồi trên bàn tay theo vùng người dùng khai */
+  /** luận thêm theo TỪNG VÙNG lòng bàn tay (gia đạo / đất đai – nhà cửa / tình duyên…) */
   moleReadings?: PalmMoleReading[];
-  /** ghi chú khi không có nốt ruồi để luận (AI quét không thấy / người xem khai không có) */
+  /** @deprecated không còn dùng (đã bỏ thông báo "không tìm thấy" ở lòng bàn tay) */
   moleNote?: string;
   /** luận sức khỏe & tinh thần theo sắc thái / màu sắc lòng bàn tay (bám kho tri thức) */
   healthNote?: string;
