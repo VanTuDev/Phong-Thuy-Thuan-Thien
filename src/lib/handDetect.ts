@@ -302,10 +302,14 @@ export async function detectPalm(
 
   const handedness = res.handedness?.[0]?.[0]?.categoryName as "Left" | "Right" | undefined;
 
-  // Đầu ngón tay bị crop khỏi khung: MediaPipe đặt điểm mốc đầu ngón ở/ra ngoài
-  // mép ảnh (bàn tay hướng ngón lên trên → y nhỏ). Không đủ để luận độ dài/độ hở ngón.
-  const tipYs = [4, 8, 12, 16, 20].map((i) => lm[i]?.[1] ?? 1);
-  const fingersCropped = box.y <= 0.02 || Math.min(...tipYs) <= 0.02;
+  // Đầu 4 ngón (trỏ/giữa/áp út/út) bị CẮT khỏi khung: MediaPipe đặt điểm mốc ra
+  // NGOÀI ảnh (x/y < 0 hoặc > 1) hoặc ép sát mép. Ngón sát mép nhưng vẫn trong
+  // khung thì KHÔNG tính (ảnh chụp hơi khít vẫn luận được). Bỏ qua ngón cái.
+  const outOfFrame = [8, 12, 16, 20].filter((i) => {
+    const p = lm[i];
+    return !p || p[0] < 0.004 || p[0] > 0.996 || p[1] < 0.004 || p[1] > 0.996;
+  }).length;
+  const fingersCropped = outOfFrame >= 1;
 
   const anchors = computeAnchors(lm);
   let metrics: HandMetrics | undefined;

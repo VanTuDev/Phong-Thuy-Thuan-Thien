@@ -782,7 +782,7 @@ export default function PalmScanWorkspace() {
                   <div className="mb-2 flex items-center gap-2">
                     <Icon name="back_hand" className="text-[18px] text-gold/70" />
                     <h3 className="font-label-caps text-label-caps text-on-surface-variant">
-                      Tổng quan bàn tay — ngón tay &amp; độ hở
+                      Hình bàn tay, độ dài ngón &amp; nguyên tố
                     </h3>
                   </div>
                   <p className="whitespace-pre-line font-body-md text-sm leading-relaxed text-on-surface-variant">
