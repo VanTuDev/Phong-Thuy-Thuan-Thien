@@ -17,6 +17,19 @@ const PLACEHOLDER: Record<ReadingType, string> = {
 
 const ACCEPT = ".pdf,.doc,.docx,.txt,.md,.jpg,.jpeg,.png,.webp,.gif";
 
+/** Nếu chuỗi là JSON thì in đẹp (thụt lề) cho dễ đọc; không phải JSON thì giữ nguyên. */
+function prettyText(s: string): string {
+  const t = s.trim();
+  if ((t.startsWith("{") || t.startsWith("[")) && t.length < 200_000) {
+    try {
+      return JSON.stringify(JSON.parse(t), null, 2);
+    } catch {
+      /* không phải JSON hợp lệ */
+    }
+  }
+  return s;
+}
+
 function fileToDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -145,11 +158,13 @@ export default function KnowledgeWorkspace() {
 
       <section className="mb-section-gap grid grid-cols-12 gap-gutter">
         <div className="col-span-12 flex flex-col gap-3 lg:col-span-5">
-        <input
+        <textarea
           value={fileNote}
           onChange={(e) => setFileNote(e.target.value)}
-          placeholder="Chú thích cho tệp sắp tải (tùy chọn) — ảnh kèm chú thích sẽ được AI xem khi luận giải"
-          className="w-full rounded-lg border border-white/10 bg-surface-container-low px-4 py-2.5 font-body-md text-[13px] text-on-surface outline-none transition-colors focus:border-gold/60 placeholder:text-on-surface-variant/30"
+          spellCheck={false}
+          rows={4}
+          placeholder="Chú thích cho tệp sắp tải (tùy chọn) — ảnh kèm chú thích sẽ được AI xem khi luận giải. Có thể dán bảng/JSON nhiều dòng."
+          className="min-h-[92px] w-full resize-y whitespace-pre-wrap rounded-lg border border-white/10 bg-surface-container-low px-4 py-2.5 font-body-md text-[13px] leading-relaxed text-on-surface outline-none transition-colors focus:border-gold/60 placeholder:text-on-surface-variant/30"
         />
         <div
           onClick={() => !busy && fileRef.current?.click()}
@@ -465,10 +480,26 @@ function DocModal({
                     value={text}
                     onChange={(e) => setText(e.target.value)}
                     spellCheck={false}
-                    className={`mt-1.5 w-full resize-y whitespace-pre-wrap rounded-lg border border-white/10 bg-surface-container px-4 py-3 font-body-md text-[15px] leading-relaxed text-white outline-none focus:border-gold/60 ${
-                      isImage ? "min-h-[110px]" : "min-h-[440px]"
+                    className={`mt-1.5 w-full resize-y whitespace-pre-wrap rounded-lg border border-white/10 bg-surface-container px-4 py-3 leading-relaxed text-white outline-none focus:border-gold/60 ${
+                      isImage
+                        ? "min-h-[320px] font-data-mono text-[13px]"
+                        : "min-h-[440px] font-body-md text-[15px]"
                     }`}
                   />
+                  {isImage && (
+                    <span className="mt-1 block font-body-md text-[11px] text-outline">
+                      Giữ nguyên xuống dòng / thụt lề. Nếu là JSON, bấm “Định dạng lại” để in đẹp.
+                    </span>
+                  )}
+                  {isImage && (
+                    <button
+                      type="button"
+                      onClick={() => setText(prettyText(text))}
+                      className="press mt-1.5 rounded border border-white/15 px-2.5 py-1 font-data-mono text-[11px] text-on-surface-variant hover:text-gold"
+                    >
+                      Định dạng lại (JSON)
+                    </button>
+                  )}
                 </label>
               ) : (
                 <p className="rounded-lg border border-white/10 bg-surface-container px-4 py-3 text-sm text-on-surface-variant">
@@ -480,13 +511,14 @@ function DocModal({
           ) : doc.type === "Image" && fileUrl ? (
             <div className="space-y-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={fileUrl} alt={doc.name} className="mx-auto max-h-[55vh] rounded-lg border border-white/10" />
+              <img src={fileUrl} alt={doc.name} className="mx-auto max-h-[45vh] rounded-lg border border-white/10" />
               {doc.text ? (
-                <p className="rounded-lg border border-gold/20 bg-gold/[0.04] px-4 py-3 text-sm text-on-surface">
+                <div className="rounded-lg border border-gold/20 bg-gold/[0.04] p-3">
                   <span className="font-label-caps text-[10px] text-gold/70">Chú thích cho AI</span>
-                  <br />
-                  {doc.text}
-                </p>
+                  <pre className="mt-1.5 max-h-[38vh] overflow-auto whitespace-pre-wrap break-words font-data-mono text-[12px] leading-relaxed text-on-surface">
+                    {prettyText(doc.text)}
+                  </pre>
+                </div>
               ) : (
                 <p className="text-center text-xs text-outline">
                   Chưa có chú thích — bấm “Sửa” để thêm mô tả giúp AI hiểu ảnh này.
