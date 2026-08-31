@@ -89,6 +89,8 @@ export interface PalmResult {
   moleNote?: string;
   /** luận sức khỏe & tinh thần theo sắc thái / màu sắc lòng bàn tay (bám kho tri thức) */
   healthNote?: string;
+  /** luận độ dài & độ hở các ngón tay (bám kho tri thức); rỗng nếu không thấy rõ ngón tay */
+  fingerNote?: string;
   subject?: PalmSubject | null;
 }
 
@@ -114,6 +116,13 @@ export interface PalmObservation {
   colorNotes?: string[];
   /** độ tin cậy nhận định màu (ảnh hưởng bởi ánh sáng): cao | vừa | thấp */
   colorConfidence?: string;
+  /** quan sát ngón tay & khe hở từ ảnh */
+  fingers?: {
+    visible: boolean;
+    gaps: { pair: string; gap: string; trend: string }[];
+    pinkyLength: string;
+    pinkyCurl: string;
+  };
   lines: PalmLineObservation[];
   declaredHand?: "trai" | "phai";
   moles?: { region: number; seen: boolean; note: string }[];

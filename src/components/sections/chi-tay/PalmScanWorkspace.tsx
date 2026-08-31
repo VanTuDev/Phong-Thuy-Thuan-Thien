@@ -800,6 +800,20 @@ export default function PalmScanWorkspace() {
                 </div>
               )}
 
+              {result.fingerNote && (
+                <div className="rounded-xl border border-white/5 bg-surface-container-lowest p-5 motion-safe:animate-fade-in-up">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Icon name="back_hand" className="text-[16px] text-gold/70" />
+                    <h3 className="font-label-caps text-label-caps text-on-surface-variant">
+                      Độ dài &amp; độ hở các ngón tay
+                    </h3>
+                  </div>
+                  <p className="whitespace-pre-line font-body-md text-sm leading-relaxed text-on-surface-variant">
+                    {result.fingerNote}
+                  </p>
+                </div>
+              )}
+
               {result.healthNote && (
                 <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 motion-safe:animate-fade-in-up">
                   <div className="mb-2 flex items-center gap-2">
