@@ -105,7 +105,7 @@ export default function HistoryList() {
             <img
               alt="Ảnh đã phân tích"
               src={mediaUrl(entry.image)}
-              className="h-[72px] w-[72px] shrink-0 rounded-lg border border-white/10 object-cover grayscale"
+              className="h-[72px] w-[72px] shrink-0 rounded-lg border border-white/10 object-cover"
             />
             <div className="min-w-0 flex-1">
               <div className="mb-1.5 flex flex-wrap items-center gap-2">

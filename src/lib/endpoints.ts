@@ -87,6 +87,8 @@ export interface PalmResult {
   moleReadings?: PalmMoleReading[];
   /** ghi chú khi không có nốt ruồi để luận (AI quét không thấy / người xem khai không có) */
   moleNote?: string;
+  /** luận sức khỏe & tinh thần theo sắc thái / màu sắc lòng bàn tay (bám kho tri thức) */
+  healthNote?: string;
   subject?: PalmSubject | null;
 }
 
@@ -106,6 +108,12 @@ export interface PalmObservation {
   note: string;
   handShape: string;
   dominantElementHint: string;
+  /** sắc thái da lòng bàn tay: hồng hào | bình thường | nhợt nhạt | ửng đỏ | ánh vàng | xỉn */
+  skinTone?: string;
+  /** các mảng/đốm màu bất thường: "<vị trí> — <màu>" */
+  colorNotes?: string[];
+  /** độ tin cậy nhận định màu (ảnh hưởng bởi ánh sáng): cao | vừa | thấp */
+  colorConfidence?: string;
   lines: PalmLineObservation[];
   declaredHand?: "trai" | "phai";
   moles?: { region: number; seen: boolean; note: string }[];

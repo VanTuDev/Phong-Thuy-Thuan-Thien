@@ -140,7 +140,7 @@ export default function ReadingLogReview() {
               <img
                 src={mediaUrl(selected.image)}
                 alt={`Ảnh đã tải lên cho ${selected.id}`}
-                className="h-[200px] w-full rounded-lg border border-white/10 object-cover grayscale sm:w-[200px]"
+                className="h-[200px] w-full rounded-lg border border-white/10 object-cover sm:w-[200px]"
               />
               <div>
                 <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">

@@ -367,7 +367,7 @@ export default function PalmScanWorkspace() {
                   src={image.dataUrl}
                   alt="Ảnh lòng bàn tay đã tải lên"
                   className={`absolute inset-0 h-full w-full object-cover transition-all duration-700 ${
-                    phase === "scanning" || checking ? "opacity-70 saturate-50" : "opacity-95"
+                    phase === "scanning" || checking ? "opacity-80" : "opacity-95"
                   }`}
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-background/70 via-transparent to-transparent" />
@@ -796,6 +796,23 @@ export default function PalmScanWorkspace() {
                   <Icon name="spa" className="mt-0.5 shrink-0 text-[15px] text-gold/50" />
                   <p className="font-body-md text-[13px] leading-relaxed text-on-surface-variant">
                     {result.moleNote}
+                  </p>
+                </div>
+              )}
+
+              {result.healthNote && (
+                <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 motion-safe:animate-fade-in-up">
+                  <div className="mb-2 flex items-center gap-2">
+                    <Icon name="health_and_safety" className="text-[16px] text-gold/70" />
+                    <h3 className="font-label-caps text-label-caps text-on-surface-variant">
+                      Sắc thái bàn tay — sức khỏe &amp; tinh thần
+                    </h3>
+                  </div>
+                  <p className="whitespace-pre-line font-body-md text-sm leading-relaxed text-on-surface-variant">
+                    {result.healthNote}
+                  </p>
+                  <p className="mt-3 font-body-md text-[11px] text-outline">
+                    Góc nhìn tướng học, mang tính tham khảo — không thay thế cho việc thăm khám bác sĩ.
                   </p>
                 </div>
               )}
