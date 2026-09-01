@@ -87,7 +87,7 @@ export interface PalmResult {
   moleReadings?: PalmMoleReading[];
   /** @deprecated không còn dùng (đã bỏ thông báo "không tìm thấy" ở lòng bàn tay) */
   moleNote?: string;
-  /** luận sức khỏe & tinh thần theo sắc thái / màu sắc lòng bàn tay (bám kho tri thức) */
+  /** @deprecated TẠM BỎ — "Sắc thái bàn tay (sức khỏe/tinh thần)" đang giai đoạn phát triển */
   healthNote?: string;
   /** luận độ dài & độ hở các ngón tay (bám kho tri thức); rỗng nếu không thấy rõ ngón tay */
   fingerNote?: string;
@@ -110,12 +110,6 @@ export interface PalmObservation {
   note: string;
   handShape: string;
   dominantElementHint: string;
-  /** sắc thái da lòng bàn tay: hồng hào | bình thường | nhợt nhạt | ửng đỏ | ánh vàng | xỉn */
-  skinTone?: string;
-  /** các mảng/đốm màu bất thường: "<vị trí> — <màu>" */
-  colorNotes?: string[];
-  /** độ tin cậy nhận định màu (ảnh hưởng bởi ánh sáng): cao | vừa | thấp */
-  colorConfidence?: string;
   /** quan sát ngón tay & khe hở từ ảnh */
   fingers?: {
     visible: boolean;

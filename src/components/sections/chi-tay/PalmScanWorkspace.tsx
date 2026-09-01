@@ -809,22 +809,7 @@ export default function PalmScanWorkspace() {
                 </div>
               )}
 
-              {result.healthNote && (
-                <div className="rounded-xl border border-gold/20 bg-gold/[0.04] p-5 motion-safe:animate-fade-in-up">
-                  <div className="mb-2 flex items-center gap-2">
-                    <Icon name="health_and_safety" className="text-[16px] text-gold/70" />
-                    <h3 className="font-label-caps text-label-caps text-on-surface-variant">
-                      Sắc thái bàn tay — sức khỏe &amp; tinh thần
-                    </h3>
-                  </div>
-                  <p className="whitespace-pre-line font-body-md text-sm leading-relaxed text-on-surface-variant">
-                    {result.healthNote}
-                  </p>
-                  <p className="mt-3 font-body-md text-[11px] text-outline">
-                    Góc nhìn tướng học, mang tính tham khảo — không thay thế cho việc thăm khám bác sĩ.
-                  </p>
-                </div>
-              )}
+              {/* "Sắc thái bàn tay — sức khỏe & tinh thần" — TẠM BỎ, đang giai đoạn phát triển. */}
 
               {(observation?.fingers?.visible === false || detection?.fingersCropped) && (
                 <div className="flex items-start gap-2.5 rounded-xl border border-gold/25 bg-gold/[0.05] p-4 motion-safe:animate-fade-in-up">
