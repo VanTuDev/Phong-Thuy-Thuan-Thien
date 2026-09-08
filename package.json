@@ -2,7 +2,7 @@
   "name": "thuan-thien-phong-thuy-frontend",
   "version": "0.1.0",
   "private": true,
-  "packageManager": "pnpm@11.9.0",
+  "packageManager": "pnpm@11.23.0",
   "engines": {
     "node": ">=20.9.0"
   },
@@ -12,6 +12,7 @@
     "prebuild": "node scripts/setup-mediapipe.mjs",
     "build": "node node_modules/next/dist/bin/next build",
     "start": "node node_modules/next/dist/bin/next start",
+    "kill": "node scripts/kill-port.mjs",
     "lint": "node node_modules/next/dist/bin/next lint",
     "setup:mediapipe": "node scripts/setup-mediapipe.mjs",
     "test": "node --test \"test/**/*.test.ts\""

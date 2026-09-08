@@ -21,6 +21,7 @@ Project dùng **pnpm** (xem `packageManager` trong `package.json`). Nếu chưa 
 ```bash
 pnpm install
 pnpm dev          # http://localhost:3000 (kèm địa chỉ Network: http://<IP-LAN>:3000)
+pnpm kill         # giết tiến trình còn giữ cổng 3000 (khi báo cổng bị chiếm)
 pnpm build        # build production
 pnpm start        # chạy bản đã build
 pnpm test         # test cho các hàm thuần trong lib/ (node --test, không cần cài gì)

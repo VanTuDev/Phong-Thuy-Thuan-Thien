@@ -182,14 +182,22 @@ export default function ReadingLogReview() {
               <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
                 <h4 className="mb-2 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
                   <Icon name="face" className="text-[16px] text-gold/70" />
-                  NỐT RUỒI MẶT — NGƯỜI XEM KHAI
+                  NỐT RUỒI MẶT — NGƯỜI XEM CHỐT
                 </h4>
                 <p className="font-body-md text-xs text-outline">
-                  {selected.faceMoleIntake.mode === "search"
-                    ? "Không rõ vị trí — AI tự tìm."
-                    : selected.faceMoleIntake.mode === "none"
-                      ? "Không có nốt ruồi."
-                      : `Vị trí số: ${selected.faceMoleIntake.positions.join(", ") || "—"}`}
+                  {selected.faceMoleIntake.gender
+                    ? `Giới tính: ${selected.faceMoleIntake.gender === "nu" ? "Nữ" : "Nam"}. `
+                    : ""}
+                  {Array.isArray(selected.faceMoleIntake.spots) && selected.faceMoleIntake.spots.length
+                    ? `Vị trí số: ${selected.faceMoleIntake.spots
+                        .map((s) => `${s.n}${s.side ? s.side : ""}`)
+                        .join(", ")}`
+                    : selected.faceMoleIntake.mode === "search"
+                      ? "Không rõ vị trí — AI tự tìm (bản cũ)."
+                      : Array.isArray(selected.faceMoleIntake.positions) &&
+                          selected.faceMoleIntake.positions.length
+                        ? `Vị trí số (bản cũ): ${selected.faceMoleIntake.positions.join(", ")}`
+                        : "Không có nốt ruồi."}
                 </p>
               </div>
             )}

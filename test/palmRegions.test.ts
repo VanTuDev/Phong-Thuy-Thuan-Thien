@@ -1,12 +1,7 @@
 import { strict as assert } from "node:assert";
 import { describe, it } from "node:test";
-import {
-  handLabel,
-  moleHand,
-  sanitizePositions,
-  FACE_MOLE_POSITIONS,
-  HAND_MOLE_ZONES,
-} from "../src/lib/palmRegions.ts";
+import { handLabel, moleHand, sanitizePositions, HAND_MOLE_ZONES } from "../src/lib/palmRegions.ts";
+import { FACE_MOLE_COUNT, faceMoleArea } from "../src/lib/faceMolePositions.ts";
 
 describe("palmRegions / mole positions", () => {
   it("nam xem tay trái, nữ xem tay phải", () => {
@@ -16,9 +11,10 @@ describe("palmRegions / mole positions", () => {
     assert.equal(handLabel("phai"), "phải");
   });
 
-  it("sơ đồ mặt 78 vị trí, tay 50 ô", () => {
-    assert.equal(FACE_MOLE_POSITIONS, 78);
+  it("sơ đồ mặt 78 vị trí (đủ mô tả), tay 50 ô", () => {
+    assert.equal(FACE_MOLE_COUNT, 78);
     assert.equal(HAND_MOLE_ZONES, 50);
+    for (let n = 1; n <= 78; n++) assert.ok(faceMoleArea(n).length > 3, `thiếu mô tả vị trí ${n}`);
   });
 
   it("sanitizePositions: lọc ngoài khoảng, khử trùng, sắp tăng", () => {

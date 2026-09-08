@@ -31,7 +31,6 @@ import {
 } from "@/lib/handDetect";
 import { refineLinesToCrease } from "@/lib/palmCrease";
 import PalmLineEditor, { PALM_LINE_COLOR } from "@/components/sections/chi-tay/PalmLineEditor";
-import PalmMetricsPanel from "@/components/sections/chi-tay/PalmMetricsPanel";
 import { useSession } from "@/components/session/SessionProvider";
 
 /** Số điểm kéo trên mỗi đường khi chỉnh — ít điểm cho dễ căn chỉnh. */
@@ -686,19 +685,6 @@ export default function PalmScanWorkspace() {
               <div className="flex flex-1 items-center">
                 <PalmSkeleton />
               </div>
-            ) : detection?.metrics ? (
-              <div className="flex flex-1 flex-col gap-4 overflow-y-auto pr-1">
-                <div className="flex items-center gap-2">
-                  <Icon name="back_hand" className="text-[18px] text-gold/70" />
-                  <h4 className="font-label-caps text-label-caps text-on-surface-variant">
-                    Số đo bàn tay của bạn
-                  </h4>
-                </div>
-                <PalmMetricsPanel metrics={detection.metrics} defaultOpen />
-                <p className="font-body-md text-xs text-outline">
-                  Bấm <b>Bắt đầu luận giải</b> để AI diễn giải các số đo này cùng đường chỉ tay. Trừ 1 lượt xem Chỉ tay.
-                </p>
-              </div>
             ) : (
               <>
                 <div className="mb-6 flex items-center gap-2">
@@ -820,14 +806,6 @@ export default function PalmScanWorkspace() {
                   </p>
                 </div>
               )}
-
-              {observation?.fingers?.visible !== false &&
-                !detection?.fingersCropped &&
-                (result.hand ?? detection?.metrics) && (
-                  <PalmMetricsPanel metrics={(result.hand ?? detection?.metrics)!} />
-                )}
-
-              {observation && <ObservationPanel obs={observation} />}
 
               {reading && (
                 <ReadingFollowupChat reading={reading} onUpdated={(r) => setReading(r)} />
@@ -1097,70 +1075,6 @@ function PalmLinesOverlay({ lines }: { lines: PalmResult["lines"] }) {
         }
       `}</style>
     </svg>
-  );
-}
-
-function ObservationPanel({ obs }: { obs: PalmObservation }) {
-  return (
-    <details className="group rounded-xl border border-white/5 bg-surface-container-lowest/60 [&_summary::-webkit-details-marker]:hidden">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
-        <span className="flex items-center gap-2">
-          <Icon name="visibility" className="text-[16px] text-gold/60" />
-          <span className="font-label-caps text-label-caps text-on-surface-variant">AI đã quan sát</span>
-        </span>
-        <Icon
-          name="expand_more"
-          className="text-[18px] text-outline transition-transform group-open:rotate-180"
-        />
-      </summary>
-      <div className="space-y-3 border-t border-white/5 px-4 pb-4 pt-3">
-        <div className="grid grid-cols-2 gap-2">
-          <ObsField label="Dáng bàn tay" value={obs.handShape} />
-          <ObsField label="Độ rõ ảnh" value={obs.clarity} />
-        </div>
-        {obs.dominantElementHint && (
-          <ObsField label="Thiên hướng nguyên tố" value={obs.dominantElementHint} />
-        )}
-        {obs.note && <p className="font-body-md text-xs text-outline">{obs.note}</p>}
-        <ul className="space-y-2">
-          {obs.lines.map((l) => (
-            <li
-              key={l.id}
-              className="rounded-lg border border-white/5 bg-surface-container-lowest/60 p-3"
-            >
-              <div className="flex items-center justify-between">
-                <span className="font-headline-md text-[15px] text-on-surface">
-                  {LINE_LABEL[l.id] ?? l.id}
-                </span>
-                <span
-                  className={`font-data-mono text-[11px] ${
-                    l.present ? "text-gold/70" : "text-error/70"
-                  }`}
-                >
-                  {l.present ? "thấy rõ" : "khó thấy"}
-                </span>
-              </div>
-              <p className="mt-1 font-body-md text-xs text-on-surface-variant">
-                Độ sâu: {l.depth} · Độ dài: {l.length}
-                {l.features.length > 0 && <> · {l.features.join(", ")}</>}
-              </p>
-            </li>
-          ))}
-        </ul>
-        <p className="font-body-md text-[11px] text-outline">
-          Đường chỉ được định vị theo 21 điểm mốc bàn tay; phần luận giải bám theo quan sát này để hạn chế suy diễn.
-        </p>
-      </div>
-    </details>
-  );
-}
-
-function ObsField({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <p className="font-data-mono text-[10px] uppercase tracking-wide text-outline">{label}</p>
-      <p className="font-body-md text-sm text-on-surface">{value || "không rõ"}</p>
-    </div>
   );
 }
 

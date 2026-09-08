@@ -1,16 +1,13 @@
 /**
- * Sơ đồ vị trí nốt ruồi (đánh số) để người xem tự khai TRƯỚC khi phân tích:
- *  - Lòng bàn tay: 50 ô  — `/DataNotRuoi/AnhNotRuoiTrenTay.png`
- *  - Khuôn mặt:    78 vị trí — `/DataNotRuoi/AnhNotRuoiTrenMat.png`
+ * Sơ đồ vị trí nốt ruồi LÒNG BÀN TAY (50 ô) — `/DataNotRuoi/AnhNotRuoiTrenTay.png`.
+ * (Nốt ruồi khuôn mặt dùng luồng riêng: xem `lib/faceMolePositions.ts`.)
  *
  * KHÔNG hard-code ý nghĩa từng ô — Gemini tự luận theo số ô; admin bổ sung tri
  * thức ở Kho kiến thức nếu muốn bám sát tướng số. Bản mirror phía backend:
  * `Backend/src/services/palmRegions.ts`.
  */
 export const HAND_MOLE_ZONES = 50;
-export const FACE_MOLE_POSITIONS = 78;
 
-export const FACE_CHART_IMG = "/DataNotRuoi/AnhNotRuoiTrenMat.png";
 export const HAND_CHART_IMG = "/DataNotRuoi/AnhNotRuoiTrenTay.png";
 
 /** Lọc + chuẩn hoá danh sách số ô (nguyên, 1..max, không trùng, tăng dần). */

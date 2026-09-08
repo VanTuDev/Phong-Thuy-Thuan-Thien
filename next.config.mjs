@@ -1,4 +1,11 @@
 /** @type {import('next').NextConfig} */
+import { fileURLToPath } from "node:url";
+import { dirname } from "node:path";
+
+// Thư mục này là gốc dự án FE. Khai báo tường minh để Turbopack không "đoán" nhầm
+// lên thư mục cha khi chạy qua trình chạy monorepo `../scripts/dev.mjs`
+// (lúc đó có thêm ../pnpm-lock.yaml ở thư mục gốc).
+const projectRoot = dirname(fileURLToPath(import.meta.url));
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || "";
 let apiPattern = null;
@@ -35,6 +42,7 @@ if (!globalThis.__msConfigLogged) {
 
 const nextConfig = {
   reactStrictMode: true,
+  turbopack: { root: projectRoot },
   images: {
     // Avatar mặc định của Dicebear là SVG.
     dangerouslyAllowSVG: true,

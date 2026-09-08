@@ -43,10 +43,29 @@ export type PalmLineId = "path-life" | "path-head" | "path-heart";
 /** "declared" = tự khai ô số · "search" = nhờ AI tìm · "none" = không có. */
 export type MoleMode = "declared" | "search" | "none";
 
+/** Một nốt ruồi người xem đã CHỐT (số vị trí + toạ độ trên ảnh mặt). */
+export interface FaceMoleSpot {
+  n: number; // số vị trí 1..78
+  side?: "T" | "P"; // "T" nửa trái ảnh, "P" nửa phải — chỉ khi vị trí có ở cả 2 bên
+  x: number; // % 0..100 trên ảnh khuôn mặt người xem
+  y: number;
+}
+
 /** Trắc nghiệm nốt ruồi trên MẶT (dùng cho reading type "not-ruoi"). */
 export interface FaceMoleIntake {
-  mode: MoleMode;
-  positions: number[]; // số vị trí 1..78; [] khi mode != "declared"
+  gender?: "nam" | "nu";
+  spots: FaceMoleSpot[]; // [] = xác nhận không có nốt ruồi nào
+  /** @deprecated shape cũ — chỉ đọc ở lịch sử */
+  mode?: MoleMode;
+  positions?: number[];
+}
+
+/** Kết quả LƯỢT 1: AI dò nốt ruồi trên ảnh + gợi ý số (người xem sửa lại). */
+export interface FaceScanMole {
+  x: number;
+  y: number;
+  number?: number;
+  side?: "T" | "P";
 }
 
 /** Trắc nghiệm người dùng điền trước khi tải ảnh chỉ tay. */
@@ -128,6 +147,9 @@ export interface Mole {
   name: string;
   desc: string;
   icon: string;
+  number?: number; // số vị trí 1..78
+  side?: "T" | "P";
+  area?: string; // mô tả vùng giải phẫu
 }
 export interface MoleResult {
   moles: Mole[];
@@ -253,9 +275,21 @@ export const readings = {
     apiFetch<{ reading: Reading; remaining: number }>("/readings/palm", {
       body: { image, ...(hint ?? {}) },
     }),
-  mole: (image: string, intake?: FaceMoleIntake) =>
+  /** LƯỢT 1 nốt ruồi mặt: AI dò nốt + gợi ý số (không tốn lượt). */
+  moleScan: (image: string) =>
+    apiFetch<{ moles: FaceScanMole[]; note: string; engine: "gemini" | "demo" }>(
+      "/readings/mole/scan",
+      { body: { image } },
+    ),
+  /** LƯỢT 2: luận giải theo các nốt người xem đã chốt (thêm/xoá/sửa số) (trừ 1 lượt). */
+  mole: (image: string, intake: FaceMoleIntake) =>
     apiFetch<{ reading: Reading; remaining: number }>("/readings/mole", {
-      body: { image, ...(intake ? { intake } : {}) },
+      body: { image, intake },
+    }),
+  /** Người xem tự sửa SỐ một nốt ruồi mặt → luận lại nốt đó (không tốn lượt). */
+  moleRenumber: (id: string, moleId: string, number: number, side?: "T" | "P") =>
+    apiFetch<{ reading: Reading }>(`/readings/${id}/mole-renumber`, {
+      body: { moleId, number, ...(side ? { side } : {}) },
     }),
   /** Ghi lại đường chỉ tay sau khi client bám nếp gấp thật (source → "cv"). */
   updateLines: (id: string, lines: { id: string; points: [number, number][] }[]) =>
