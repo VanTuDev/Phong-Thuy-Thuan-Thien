@@ -19,10 +19,6 @@ export default function PhanTichChiTayPage() {
           <h1 className="mb-4 font-display-lg text-headline-lg-mobile font-light tracking-tight text-gold md:text-display-lg">
             Phân tích Chỉ tay
           </h1>
-          <p className="font-body-lg text-body-lg font-light text-on-surface-variant">
-            Tải lên ảnh lòng bàn tay rõ nét để AI lần theo ba đường chỉ tay — Đường gia đình, Đường
-            tình duyên và Đường công danh sự nghiệp — cùng nguyên tố bàn tay của bạn.
-          </p>
           <CreditBadge type="chi-tay" />
         </div>
 

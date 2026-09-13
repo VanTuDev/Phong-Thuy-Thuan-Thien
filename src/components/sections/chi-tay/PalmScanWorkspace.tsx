@@ -362,8 +362,16 @@ export default function PalmScanWorkspace() {
           {image && phase !== "empty" && (
             <div className="relative flex flex-1 flex-col items-center justify-center p-3">
               <div
-                className="relative w-full overflow-hidden rounded-xl"
-                style={{ aspectRatio: `${image.width} / ${image.height}`, maxHeight: "66vh" }}
+                // Chiều rộng = nhỏ hơn giữa "vừa khung" và "chiều rộng khiến chiều cao
+                // chạm đúng 66vh" — luôn giữ ĐÚNG tỉ lệ khung hình thật của ảnh (không
+                // dùng maxHeight riêng, vì maxHeight xung đột với aspectRatio sẽ làm hộp
+                // méo đi so với ảnh, khiến object-cover phải CẮT bớt ảnh, nhất là ảnh
+                // chụp dọc). Nhờ vậy ảnh luôn hiện TRỌN VẸN, không mất phần nào.
+                className="relative overflow-hidden rounded-xl"
+                style={{
+                  aspectRatio: `${image.width} / ${image.height}`,
+                  width: `min(100%, calc(66vh * ${image.width} / ${image.height}))`,
+                }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -464,10 +472,13 @@ export default function PalmScanWorkspace() {
                 </div>
               )}
 
-              <div className="mt-3 flex w-full flex-wrap items-center justify-between gap-3">
+              <div className="mt-3 flex w-full flex-col gap-3">
+                {/* Badge trạng thái — bo góc vừa (KHÔNG dùng rounded-full) vì vài dòng
+                    (vd cảnh báo tư thế tay) khá dài, xuống dòng trên điện thoại sẽ vỡ
+                    hình viên thuốc. Mỗi badge chiếm trọn chiều rộng để dễ đọc. */}
                 {phase === "done" && (
-                  <span className="flex items-center gap-2 rounded-full border border-white/10 bg-surface-container/80 px-4 py-2 font-data-mono text-data-mono text-on-surface backdrop-blur-md motion-safe:animate-fade-in-up">
-                    <span className="h-2 w-2 rounded-full bg-gold animate-pulse" />
+                  <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-surface-container/80 px-4 py-2.5 font-data-mono text-data-mono text-on-surface backdrop-blur-md motion-safe:animate-fade-in-up">
+                    <span className="h-2 w-2 shrink-0 rounded-full bg-gold animate-pulse" />
                     {result?.aiDeep
                       ? "AI đã đọc kỹ ảnh & luận giải"
                       : result?.lines.some((l) => l.source === "manual")
@@ -483,81 +494,88 @@ export default function PalmScanWorkspace() {
                 )}
 
                 {phase === "preview" && !editMode && detection?.ok && readMode === "manual" && (
-                  <span className="flex items-center gap-2 rounded-full border border-wood/30 bg-wood/10 px-3 py-1.5 font-data-mono text-[12px] text-wood motion-safe:animate-fade-in">
-                    <Icon name="check_circle" className="text-[14px]" />
+                  <span className="flex items-center gap-2 rounded-xl border border-wood/30 bg-wood/10 px-3.5 py-2 font-data-mono text-[12px] text-wood motion-safe:animate-fade-in">
+                    <Icon name="check_circle" className="shrink-0 text-[14px]" />
                     {detection.traced && Object.values(detection.traced).some(Boolean)
                       ? `Đã bám ${Object.values(detection.traced).filter(Boolean).length}/3 nếp gấp`
                       : "Đã nhận diện bàn tay"}
                   </span>
                 )}
                 {phase === "preview" && !editMode && !checking && detectorDown && !manualMode && (
-                  <span className="flex items-center gap-2 rounded-full border border-white/10 bg-surface-container px-3 py-1.5 font-data-mono text-[12px] text-on-surface-variant">
-                    <Icon name="info" className="text-[14px]" />
+                  <span className="flex items-center gap-2 rounded-xl border border-white/10 bg-surface-container px-3.5 py-2 font-data-mono text-[12px] text-on-surface-variant">
+                    <Icon name="info" className="shrink-0 text-[14px]" />
                     Bỏ qua bước dò cục bộ — AI sẽ tự kiểm tra
                   </span>
                 )}
                 {phase === "preview" && !editMode && detection?.metrics?.pose &&
                   detection.metrics.pose.quality !== "tốt" && (
-                    <span className="flex items-start gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 font-data-mono text-[12px] text-gold/90">
+                    <span className="flex items-start gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3.5 py-2 font-data-mono text-[12px] leading-relaxed text-gold/90">
                       <Icon name="report" className="mt-px shrink-0 text-[14px]" />
                       {detection.metrics.pose.issues.join(" · ") || "Tư thế bàn tay chưa lý tưởng"} —
                       vẫn luận giải được, ảnh xoè phẳng sẽ chính xác hơn
                     </span>
                   )}
                 {phase === "preview" && editMode && (
-                  <span className="flex items-center gap-2 rounded-full border border-gold/30 bg-gold/10 px-3 py-1.5 font-data-mono text-[12px] text-gold/90">
-                    <Icon name="edit" className="text-[14px]" />
+                  <span className="flex items-start gap-2 rounded-xl border border-gold/30 bg-gold/10 px-3.5 py-2 font-data-mono text-[12px] leading-relaxed text-gold/90">
+                    <Icon name="edit" className="mt-px shrink-0 text-[14px]" />
                     {redraw
                       ? `Đang vẽ ${LINE_LABEL[redraw]} — chấm ≥3 điểm dọc đường chỉ`
                       : "Kéo các điểm cho khớp đường chỉ trên tay bạn"}
                   </span>
                 )}
 
-                {phase === "preview" && editMode && redraw && (
-                  <button
-                    type="button"
-                    onClick={finishRedraw}
-                    className="press flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-label-caps text-label-caps text-on-surface hover:bg-white/5"
-                  >
-                    <Icon name="check" className="text-[16px]" />
-                    Xong
-                  </button>
-                )}
+                {/* Hàng nút hành động — nút chính (luận giải) chiếm phần lớn chiều rộng
+                    trên điện thoại để dễ bấm bằng ngón cái, nút phụ gọn lại. */}
+                <div className="flex items-center gap-3">
+                  {phase === "preview" && editMode && redraw && (
+                    <button
+                      type="button"
+                      onClick={finishRedraw}
+                      className="press flex items-center gap-2 rounded-sm border border-white/20 px-5 py-2.5 font-label-caps text-label-caps text-on-surface hover:bg-white/5"
+                    >
+                      <Icon name="check" className="text-[16px]" />
+                      Xong
+                    </button>
+                  )}
 
-                {phase === "preview" && canProceed && !redraw && readMode === "manual" && (
-                  <button
-                    type="button"
-                    onClick={() => setEditMode((v) => !v)}
-                    className={`press flex items-center gap-2 rounded-sm border px-4 py-3 font-label-caps text-label-caps transition-colors ${
-                      editMode
-                        ? "border-gold/50 bg-gold/10 text-gold"
-                        : "border-white/20 text-on-surface hover:bg-white/5"
-                    }`}
-                  >
-                    <Icon name={editMode ? "check" : "edit"} className="text-[16px]" />
-                    {editMode ? "Xong chỉnh" : "Chỉnh đường"}
-                  </button>
-                )}
+                  {phase === "preview" && canProceed && !redraw && readMode === "manual" && (
+                    <button
+                      type="button"
+                      onClick={() => setEditMode((v) => !v)}
+                      className={`press flex shrink-0 items-center gap-1.5 rounded-sm border px-3 py-3 font-label-caps text-[11px] transition-colors sm:gap-2 sm:px-4 sm:text-label-caps ${
+                        editMode
+                          ? "border-gold/50 bg-gold/10 text-gold"
+                          : "border-white/20 text-on-surface hover:bg-white/5"
+                      }`}
+                    >
+                      <Icon name={editMode ? "check" : "edit"} className="shrink-0 text-[16px]" />
+                      {editMode ? "Xong chỉnh" : "Chỉnh đường"}
+                    </button>
+                  )}
 
-                {phase === "preview" && !redraw && (
+                  {phase === "preview" && !redraw && (
+                    <button
+                      type="button"
+                      onClick={analyze}
+                      disabled={!readyToScan}
+                      className="press flex flex-1 items-center justify-center gap-2 rounded-sm bg-gold px-4 py-3 font-label-caps text-[11px] text-on-gold transition-shadow hover:shadow-[0_0_24px_rgba(212,175,55,0.35)] disabled:opacity-40 disabled:hover:shadow-none sm:flex-initial sm:px-6 sm:text-label-caps"
+                    >
+                      <Icon name={readMode === "ai" ? "neurology" : "auto_awesome"} className="shrink-0 text-[18px]" />
+                      <span className="sm:hidden">{readMode === "ai" ? "Luận giải AI" : "Bắt đầu luận giải"}</span>
+                      <span className="hidden sm:inline">
+                        {readMode === "ai" ? "Luận giải AI — đọc sâu" : "Bắt đầu luận giải"}
+                      </span>
+                    </button>
+                  )}
                   <button
                     type="button"
-                    onClick={analyze}
-                    disabled={!readyToScan}
-                    className="press flex items-center gap-2 rounded-sm bg-gold px-6 py-3 font-label-caps text-label-caps text-on-gold transition-shadow hover:shadow-[0_0_24px_rgba(212,175,55,0.35)] disabled:opacity-40 disabled:hover:shadow-none"
+                    onClick={reset}
+                    className="press tap-target ml-auto flex shrink-0 items-center justify-center rounded-full border border-white/20 bg-surface-container text-on-surface transition-colors hover:bg-surface-variant"
+                    title="Chọn ảnh khác"
                   >
-                    <Icon name={readMode === "ai" ? "neurology" : "auto_awesome"} className="text-[18px]" />
-                    {readMode === "ai" ? "Luận giải AI — đọc sâu" : "Bắt đầu luận giải"}
+                    <Icon name="refresh" className="text-[18px]" />
                   </button>
-                )}
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="press tap-target ml-auto flex items-center justify-center rounded-full border border-white/20 bg-surface-container text-on-surface transition-colors hover:bg-surface-variant"
-                  title="Chọn ảnh khác"
-                >
-                  <Icon name="refresh" className="text-[18px]" />
-                </button>
+                </div>
               </div>
 
               {phase === "preview" && editMode && workLines && (
