@@ -34,6 +34,14 @@ function skewHand(): Pt[] {
   return lm;
 }
 
+/** Ngón cái gập lại ở khớp IP (đầu ngón quặp về phía lòng bàn tay). */
+function bentThumbHand(): Pt[] {
+  const lm = flatHand();
+  lm[3] = [0.19, 0.62];
+  lm[4] = [0.16, 0.7];
+  return lm;
+}
+
 describe("handPose", () => {
   it("bàn tay phẳng → ngón thẳng, chính diện, chất lượng tốt/khá", () => {
     const p = computeHandPose(flatHand());
@@ -62,5 +70,22 @@ describe("handPose", () => {
     assert.ok(m.pose);
     assert.equal(m.pose.fingerBends.length, 4);
     assert.ok(m.notes.some((n) => /máy ảnh|ngón|khum/i.test(n)));
+  });
+
+  it("ngón cái thẳng → thumbBend 'thẳng', KHÔNG tính vào fingerBends (vẫn 4 ngón)", () => {
+    const p = computeHandPose(flatHand());
+    assert.equal(p.thumbBend.id, "thumb");
+    assert.equal(p.thumbBend.state, "thẳng");
+    assert.equal(p.fingerBends.length, 4);
+    assert.ok(!p.fingerBends.some((f) => f.id === "thumb"));
+  });
+
+  it("ngón cái gập ở khớp IP → thumbBend 'cong nhiều', KHÔNG kéo quality xuống 'kém' một mình", () => {
+    const p = computeHandPose(bentThumbHand());
+    assert.equal(p.thumbBend.state, "cong nhiều");
+    // Chỉ ngón cái cong (0/4 ngón kia cong) — quality không được coi là "kém" giống
+    // như khi ≥1 trong 4 NGÓN KIA cong nhiều (thumbBend tách biệt khỏi heuristic đó).
+    assert.ok(p.fingerBends.every((f) => f.state === "thẳng"));
+    assert.notEqual(p.quality, "kém");
   });
 });

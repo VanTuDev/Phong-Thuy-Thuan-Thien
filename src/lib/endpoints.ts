@@ -135,6 +135,8 @@ export interface PalmObservation {
     gaps: { pair: string; gap: string; trend: string }[];
     pinkyLength: string;
     pinkyCurl: string;
+    thumbOpen?: string;
+    thumbBend?: string;
   };
   lines: PalmLineObservation[];
   declaredHand?: "trai" | "phai";
@@ -428,6 +430,10 @@ export interface AdminReadingLog {
   aiVerdict: string;
   summary: string;
   observation?: PalmObservation | null;
+  /** Số đo hình học tất định (MediaPipe) — đối chiếu với observation.fingers khi soi lỗi. */
+  hand?: HandMetrics | null;
+  /** Câu luận cuối cùng về ngón tay/độ hở (rỗng nếu AI không luận phần này). */
+  fingerNote?: string | null;
   intake?: PalmIntake | null;
   faceMoleIntake?: FaceMoleIntake | null;
   createdAt: string;

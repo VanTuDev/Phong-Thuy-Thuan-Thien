@@ -135,101 +135,170 @@ export default function ReadingLogReview() {
               <span className="font-data-mono text-data-mono text-on-surface-variant">{selected.createdAt}</span>
             </div>
 
-            <div className="grid grid-cols-1 gap-6 sm:grid-cols-[200px_1fr]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={mediaUrl(selected.image)}
-                alt={`Ảnh đã tải lên cho ${selected.id}`}
-                className="h-[200px] w-full rounded-lg border border-white/10 object-cover sm:w-[200px]"
-              />
-              <div>
-                <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
-                  <Icon name="smart_toy" className="text-[16px] text-gold/70" />
-                  AI ĐÃ LUẬN GIẢI
-                </h4>
-                <p className="font-body-md text-body-md leading-relaxed text-on-surface">{selected.aiVerdict}</p>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr] lg:items-start">
+              {/* Ảnh gốc — KHÔNG cắt (object-contain), cao hẳn ra để thấy TOÀN BỘ bàn
+                  tay (ảnh điện thoại thường chụp dọc) — dính lại khi cuộn để dễ đối
+                  chiếu với các khối số liệu bên phải. */}
+              <div className="lg:sticky lg:top-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={mediaUrl(selected.image)}
+                  alt={`Ảnh đã tải lên cho ${selected.id}`}
+                  className="max-h-[75vh] w-full rounded-lg border border-white/10 bg-black/20 object-contain"
+                />
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                    <Icon name="smart_toy" className="text-[16px] text-gold/70" />
+                    AI ĐÃ LUẬN GIẢI
+                  </h4>
+                  <p className="font-body-md text-body-md leading-relaxed text-on-surface">{selected.aiVerdict}</p>
+                </div>
+
+                {selected.intake && (
+                  <div className="rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
+                    <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                      <Icon name="assignment_ind" className="text-[16px] text-gold/70" />
+                      NGƯỜI XEM TỰ KHAI
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                      <ObsCell label="Họ tên" value={selected.intake.name} />
+                      <ObsCell label="Ngày sinh" value={selected.intake.dob} />
+                      <ObsCell
+                        label="Giới tính · tay"
+                        value={`${selected.intake.gender === "nam" ? "Nam" : "Nữ"} · ${
+                          selected.intake.hand === "trai" ? "trái" : "phải"
+                        }`}
+                      />
+                    </div>
+                    <p className="mt-2 font-body-md text-xs text-outline">
+                      Nốt ruồi tay:{" "}
+                      {selected.intake.handMoleMode === "search"
+                        ? "không rõ — AI tự tìm"
+                        : selected.intake.handMoles.length
+                          ? `ô số ${selected.intake.handMoles.join(", ")}`
+                          : "không có"}
+                    </p>
+                  </div>
+                )}
+
+                {selected.faceMoleIntake && (
+                  <div className="rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
+                    <h4 className="mb-2 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                      <Icon name="face" className="text-[16px] text-gold/70" />
+                      NỐT RUỒI MẶT — NGƯỜI XEM CHỐT
+                    </h4>
+                    <p className="font-body-md text-xs text-outline">
+                      {selected.faceMoleIntake.gender
+                        ? `Giới tính: ${selected.faceMoleIntake.gender === "nu" ? "Nữ" : "Nam"}. `
+                        : ""}
+                      {Array.isArray(selected.faceMoleIntake.spots) && selected.faceMoleIntake.spots.length
+                        ? `Vị trí số: ${selected.faceMoleIntake.spots
+                            .map((s) => `${s.n}${s.side ? s.side : ""}`)
+                            .join(", ")}`
+                        : selected.faceMoleIntake.mode === "search"
+                          ? "Không rõ vị trí — AI tự tìm (bản cũ)."
+                          : Array.isArray(selected.faceMoleIntake.positions) &&
+                              selected.faceMoleIntake.positions.length
+                            ? `Vị trí số (bản cũ): ${selected.faceMoleIntake.positions.join(", ")}`
+                            : "Không có nốt ruồi."}
+                    </p>
+                  </div>
+                )}
+
+                {selected.observation && (
+                  <div className="rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
+                    <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                      <Icon name="visibility" className="text-[16px] text-gold/70" />
+                      AI ĐÃ QUAN SÁT (lượt 1)
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
+                      <ObsCell label="Dáng tay" value={selected.observation.handShape} />
+                      <ObsCell label="Độ rõ" value={selected.observation.clarity} />
+                      <ObsCell
+                        label="Thiên hướng"
+                        value={selected.observation.dominantElementHint}
+                      />
+                    </div>
+                    {selected.observation.note && (
+                      <p className="mt-2 font-body-md text-xs text-outline">{selected.observation.note}</p>
+                    )}
+                    <ul className="mt-3 space-y-1.5">
+                      {selected.observation.lines.map((l) => (
+                        <li key={l.id} className="font-body-md text-xs text-on-surface-variant">
+                          <span className="text-on-surface">{LINE_LABEL[l.id] ?? l.id}</span>{" "}
+                          — {l.present ? "thấy rõ" : "khó thấy"} · sâu: {l.depth} · dài: {l.length}
+                          {l.features.length > 0 && <> · {l.features.join(", ")}</>}
+                        </li>
+                      ))}
+                    </ul>
+                    {selected.observation.fingers && (
+                      <div className="mt-3 border-t border-white/5 pt-3">
+                        <p className="mb-1.5 font-data-mono text-[10px] uppercase tracking-wide text-outline">
+                          Ngón tay (AI tự nhìn ảnh)
+                        </p>
+                        {!selected.observation.fingers.visible ? (
+                          <p className="font-body-md text-xs text-on-surface-variant">Không thấy rõ đầu ngón tay.</p>
+                        ) : (
+                          <ul className="space-y-1 font-body-md text-xs text-on-surface-variant">
+                            {selected.observation.fingers.gaps.map((g) => (
+                              <li key={g.pair}>
+                                {g.pair}: <span className="text-on-surface">{g.gap}</span> · trend: {g.trend}
+                              </li>
+                            ))}
+                            <li>
+                              Ngón út: dài{" "}
+                              <span className="text-on-surface">{selected.observation.fingers.pinkyLength}</span>,{" "}
+                              cong <span className="text-on-surface">{selected.observation.fingers.pinkyCurl}</span>
+                            </li>
+                            {(selected.observation.fingers.thumbOpen || selected.observation.fingers.thumbBend) && (
+                              <li>
+                                Ngón cái: mở{" "}
+                                <span className="text-on-surface">{selected.observation.fingers.thumbOpen ?? "?"}</span>,{" "}
+                                cong <span className="text-on-surface">{selected.observation.fingers.thumbBend ?? "?"}</span>
+                              </li>
+                            )}
+                          </ul>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {selected.hand && (
+                  <div className="rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
+                    <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
+                      <Icon name="straighten" className="text-[16px] text-gold/70" />
+                      SỐ ĐO HÌNH HỌC (MediaPipe, tất định)
+                    </h4>
+                    <ul className="space-y-1 font-body-md text-xs text-on-surface-variant">
+                      {selected.hand.gaps.map((g) => (
+                        <li key={g.label}>
+                          {g.label}: <span className="text-on-surface">{g.angleDeg}°</span> — {g.openness}
+                          {g.trend && g.trend !== "đều" ? ` · ${g.trend} về đầu ngón` : ""}
+                        </li>
+                      ))}
+                      <li>
+                        Ngón út: <span className="text-on-surface">{selected.hand.pinkyCurlDeg}°</span> —{" "}
+                        {selected.hand.pinkyCurl}
+                      </li>
+                      <li>
+                        Ngón cái: <span className="text-on-surface">{selected.hand.thumbAngleDeg}°</span> —{" "}
+                        {selected.hand.thumbOpenness ?? "?"}
+                        {selected.hand.pose?.thumbBend && selected.hand.pose.thumbBend.state !== "thẳng"
+                          ? ` · ${selected.hand.pose.thumbBend.state} (~${selected.hand.pose.thumbBend.curveDeg}°)`
+                          : ""}
+                      </li>
+                    </ul>
+                    <p className="mt-2 font-body-md text-xs text-outline">
+                      fingerNote cuối cùng: {selected.fingerNote ? `"${selected.fingerNote}"` : "(rỗng)"}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
-
-            {selected.intake && (
-              <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
-                <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
-                  <Icon name="assignment_ind" className="text-[16px] text-gold/70" />
-                  NGƯỜI XEM TỰ KHAI
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
-                  <ObsCell label="Họ tên" value={selected.intake.name} />
-                  <ObsCell label="Ngày sinh" value={selected.intake.dob} />
-                  <ObsCell
-                    label="Giới tính · tay"
-                    value={`${selected.intake.gender === "nam" ? "Nam" : "Nữ"} · ${
-                      selected.intake.hand === "trai" ? "trái" : "phải"
-                    }`}
-                  />
-                </div>
-                <p className="mt-2 font-body-md text-xs text-outline">
-                  Nốt ruồi tay:{" "}
-                  {selected.intake.handMoleMode === "search"
-                    ? "không rõ — AI tự tìm"
-                    : selected.intake.handMoles.length
-                      ? `ô số ${selected.intake.handMoles.join(", ")}`
-                      : "không có"}
-                </p>
-              </div>
-            )}
-
-            {selected.faceMoleIntake && (
-              <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
-                <h4 className="mb-2 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
-                  <Icon name="face" className="text-[16px] text-gold/70" />
-                  NỐT RUỒI MẶT — NGƯỜI XEM CHỐT
-                </h4>
-                <p className="font-body-md text-xs text-outline">
-                  {selected.faceMoleIntake.gender
-                    ? `Giới tính: ${selected.faceMoleIntake.gender === "nu" ? "Nữ" : "Nam"}. `
-                    : ""}
-                  {Array.isArray(selected.faceMoleIntake.spots) && selected.faceMoleIntake.spots.length
-                    ? `Vị trí số: ${selected.faceMoleIntake.spots
-                        .map((s) => `${s.n}${s.side ? s.side : ""}`)
-                        .join(", ")}`
-                    : selected.faceMoleIntake.mode === "search"
-                      ? "Không rõ vị trí — AI tự tìm (bản cũ)."
-                      : Array.isArray(selected.faceMoleIntake.positions) &&
-                          selected.faceMoleIntake.positions.length
-                        ? `Vị trí số (bản cũ): ${selected.faceMoleIntake.positions.join(", ")}`
-                        : "Không có nốt ruồi."}
-                </p>
-              </div>
-            )}
-
-            {selected.observation && (
-              <div className="mt-6 rounded-lg border border-white/10 bg-surface-container-lowest/60 p-4">
-                <h4 className="mb-3 flex items-center gap-2 font-label-caps text-label-caps text-on-surface-variant">
-                  <Icon name="visibility" className="text-[16px] text-gold/70" />
-                  AI ĐÃ QUAN SÁT (lượt 1)
-                </h4>
-                <div className="grid grid-cols-2 gap-2 text-sm sm:grid-cols-3">
-                  <ObsCell label="Dáng tay" value={selected.observation.handShape} />
-                  <ObsCell label="Độ rõ" value={selected.observation.clarity} />
-                  <ObsCell
-                    label="Thiên hướng"
-                    value={selected.observation.dominantElementHint}
-                  />
-                </div>
-                {selected.observation.note && (
-                  <p className="mt-2 font-body-md text-xs text-outline">{selected.observation.note}</p>
-                )}
-                <ul className="mt-3 space-y-1.5">
-                  {selected.observation.lines.map((l) => (
-                    <li key={l.id} className="font-body-md text-xs text-on-surface-variant">
-                      <span className="text-on-surface">{LINE_LABEL[l.id] ?? l.id}</span>{" "}
-                      — {l.present ? "thấy rõ" : "khó thấy"} · sâu: {l.depth} · dài: {l.length}
-                      {l.features.length > 0 && <> · {l.features.join(", ")}</>}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
           </div>
         )}
       </section>

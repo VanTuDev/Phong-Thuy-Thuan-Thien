@@ -314,7 +314,7 @@ export async function detectPalm(
   const anchors = computeAnchors(lm);
   let metrics: HandMetrics | undefined;
   try {
-    metrics = computeHandMetrics(lm);
+    metrics = computeHandMetrics(lm, { width: iw, height: ih });
   } catch {
     metrics = undefined;
   }

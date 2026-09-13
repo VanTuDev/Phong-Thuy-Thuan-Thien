@@ -24,6 +24,12 @@ export interface FingerBend {
 export interface HandPose {
   /** 4 ngón (trừ ngón cái) */
   fingerBends: FingerBend[];
+  /**
+   * Độ cong RIÊNG của ngón cái (khớp CMC→MCP→IP→TIP) — TÁCH khỏi `fingerBends`
+   * vì ngón cái tự nhiên cong nhiều hơn 4 ngón kia ngay cả khi thả lỏng bình
+   * thường, nên KHÔNG được tính vào `bent`/`heavy` (vốn quyết định cupping/quality).
+   */
+  thumbBend: FingerBend;
   /** lệch trục cổ tay → gốc ngón giữa so với phương dọc ảnh (độ) */
   tiltDeg: number;
   /** mức xoay/ngửa ngoài mặt phẳng ảnh (phối cảnh) */
@@ -87,6 +93,20 @@ export function computeHandPose(lm: Pt[]): HandPose {
   const bent = fingerBends.filter((f) => f.state !== "thẳng");
   const heavy = fingerBends.filter((f) => f.state === "cong nhiều");
 
+  // ── Độ cong RIÊNG của ngón cái (CMC→MCP→IP→TIP) ──────────────────────────
+  // Ngưỡng cao hơn 4 ngón kia (30/65 thay vì 25/55) vì ngón cái tự nhiên gập
+  // nhiều hơn ở tư thế thả lỏng bình thường — KHÔNG tính vào bent/heavy ở trên.
+  const thumbMcpDeg = turnDeg(lm[1], lm[2], lm[3]);
+  const thumbIpDeg = turnDeg(lm[2], lm[3], lm[4]);
+  const thumbCurveDeg = thumbMcpDeg + thumbIpDeg;
+  const thumbBend: FingerBend = {
+    id: "thumb",
+    label: "Ngón cái",
+    pipDeg: round1(thumbMcpDeg),
+    curveDeg: round1(thumbCurveDeg),
+    state: thumbCurveDeg < 30 ? "thẳng" : thumbCurveDeg < 65 ? "hơi cong" : "cong nhiều",
+  };
+
   // ── Nghiêng trong mặt phẳng ảnh ──────────────────────────────────────────
   const axis: Pt = [lm[9][0] - wrist[0], lm[9][1] - wrist[1]];
   const axisLen = Math.hypot(axis[0], axis[1]) || 1;
@@ -136,9 +156,12 @@ export function computeHandPose(lm: Pt[]): HandPose {
       : "Các ngón duỗi thẳng.",
   );
   notes.push(`Bàn tay ${roll} máy ảnh, nghiêng ~${Math.round(tiltDeg)}°, lòng bàn tay ${cupping}.`);
+  if (thumbBend.state !== "thẳng") {
+    notes.push(`Ngón cái ${thumbBend.state} (~${Math.round(thumbCurveDeg)}°).`);
+  }
   if (quality !== "tốt") {
     notes.push("Tư thế chưa lý tưởng — một số số đo có thể sai lệch, nên nhìn nhận thận trọng.");
   }
 
-  return { fingerBends, tiltDeg, roll, cupping, quality, issues, notes };
+  return { fingerBends, thumbBend, tiltDeg, roll, cupping, quality, issues, notes };
 }
